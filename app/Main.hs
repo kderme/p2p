@@ -144,7 +144,9 @@ processMessage h chost gpeers gtxs logfile delay  = go
             Nothing -> propagateToPeers tx
             Just newestTxKnown -> hPrint h (Oldtx newestTxKnown tx)
     go Quit = do
-        return ()
+        hClose h
+        tid <- myThreadId
+        killThread tid
     go (Unknown str) = do
         putStrLn "Error unknown message given"
         return ()
