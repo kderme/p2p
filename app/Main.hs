@@ -48,7 +48,7 @@ newTransactions :: IO (TVar Transactions)
 newTransactions = newTVarIO [] 
 
 isNew :: Transactions -> Tx -> Bool
-isNew [] tx = False
+isNew [] tx = True
 isNew (x:xs) tx = tx == x
 
 getNew :: Transactions -> Tx
@@ -114,14 +114,14 @@ processMessage h chost gpeers gtxs logfile = go
         return ()
     go GetPeers = do
         p <- atomically $ readTVar gpeers -- ?
-        hPutStrLn h $ show $ Status p
+        hPrint h (Status p)
     go (Newtx tx) = do
         maybeTx <- atomically $ processNewTx tx gtxs
         timestamp <- getCurrentTime
-        writeFile logfile ("Tx #: "++show tx++" from "++chost++show timestamp)
+        appendFile logfile ("Tx #: " ++ show tx ++ " from " ++ chost ++ " " ++ show timestamp ++ "\n")
         case maybeTx of
             Nothing -> propagateToPeers tx --TODO log
-            Just newestTxKnown -> hPutStrLn h $ show $ Oldtx newestTxKnown tx
+            Just newestTxKnown -> hPrint h (Oldtx newestTxKnown tx)
     go Quit = error "Quit Message uniplemented" -- TODO
     go (Unknown str) = do
         putStrLn "Error unknown message given"
