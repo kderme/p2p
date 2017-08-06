@@ -1,0 +1,1593 @@
+
+==================== FINAL INTERFACE ====================
+2017-08-06 09:52:03.1874672 UTC
+
+interface main@main:Main 8002
+  interface hash: cee6a6bfaaac6388614771f3cb7d71da
+  ABI hash: 6466e0629f57cc660ed95e7d52c82675
+  export-list hash: c3cc48e0122d1f52612abf094d1f4c26
+  orphan hash: 693e9af84d3dfcc71e640e005bdc5e2e
+  flag hash: 0a95a6d681cb7531ef6b65e5615eacd0
+  sig of: Nothing
+  used TH splices: False
+  where
+exports:
+  Main.clientThread
+  Main.getNew
+  Main.isNew
+  Main.main
+  Main.newPeers
+  Main.newTransactions
+  Main.processMessage
+  Main.processNewTx
+  Main.randomIntervals
+  Main.send
+  Main.startUpThread
+  Main.Message{Main.Connect Main.GetPeers Main.Newtx Main.Oldtx Main.Quit Main.Status Main.Unknown}
+  Main.Peer{Main.Peer hostName port}
+  Main.Peers
+  Main.Transactions
+  Main.Tx
+module dependencies:
+package dependencies: Win32-2.3.1.1@Win32-2.3.1.1
+                      array-0.5.1.1@array-0.5.1.1 base-4.9.1.0
+                      deepseq-1.4.2.0@deepseq-1.4.2.0 ghc-prim-0.5.0.0
+                      integer-gmp-1.0.0.1
+                      network-2.6.3.2@network-2.6.3.2-F0OcsS89osODGCGHNf1FTk
+                      p2p-0.1.0.0@p2p-0.1.0.0-6n0WPTa0UB8GnQlfIhCsVe
+                      stm-2.4.4.1@stm-2.4.4.1-JQn4hNPyYjP5m9AcbI88Ve
+                      time-1.6.0.1@time-1.6.0.1
+orphans: base-4.9.1.0:GHC.Base base-4.9.1.0:GHC.Float
+         network-2.6.3.2@network-2.6.3.2-F0OcsS89osODGCGHNf1FTk:Network.Socket
+         stm-2.4.4.1@stm-2.4.4.1-JQn4hNPyYjP5m9AcbI88Ve:Control.Monad.STM
+         time-1.6.0.1@time-1.6.0.1:Data.Time.Calendar.Gregorian
+         time-1.6.0.1@time-1.6.0.1:Data.Time.Format.Parse
+         time-1.6.0.1@time-1.6.0.1:Data.Time.LocalTime.LocalTime
+family instance modules: base-4.9.1.0:Control.Applicative
+                         base-4.9.1.0:Data.Complex base-4.9.1.0:Data.Either
+                         base-4.9.1.0:Data.Functor.Const base-4.9.1.0:Data.Functor.Identity
+                         base-4.9.1.0:Data.List.NonEmpty base-4.9.1.0:Data.Monoid
+                         base-4.9.1.0:Data.Semigroup base-4.9.1.0:Data.Type.Equality
+                         base-4.9.1.0:Data.Version base-4.9.1.0:Data.Void
+                         base-4.9.1.0:GHC.Exts base-4.9.1.0:GHC.Generics
+                         base-4.9.1.0:GHC.IO.Exception base-4.9.1.0:GHC.TypeLits
+import  -/  base-4.9.1.0:Control.Concurrent e3f6962e2eee72e46a7f524818b5ed3e
+import  -/  base-4.9.1.0:Control.Exception 292fff19f09f7eea1a1573871191d564
+import  -/  base-4.9.1.0:Control.Monad f915f187cea611986ebb12dbc69279ab
+import  -/  base-4.9.1.0:Data.Foldable 254e836c2d813d34e47feb29bb8d40ed
+import  -/  base-4.9.1.0:GHC.Base 4caea1123ecf4b46e27cbccd6d279377
+import  -/  base-4.9.1.0:GHC.Conc.Sync 18bcf7264dc8f03029975495d151af25
+import  -/  base-4.9.1.0:GHC.Err 20faef8829fd13c027d0ee2213637534
+import  -/  base-4.9.1.0:GHC.IO.Handle cb8bbcf28331624bf008e1abd21fcddd
+import  -/  base-4.9.1.0:GHC.IO.Handle.Text e0147bd867839fcc2c3f2eace90b4d47
+import  -/  base-4.9.1.0:GHC.IO.Handle.Types 638c6e55b150de2630213031097f67d4
+import  -/  base-4.9.1.0:GHC.List d11eb227c1c6fbfd89bb781d72eaea0d
+import  -/  base-4.9.1.0:GHC.Read 823163de9fa29f31f251382abc171b2b
+import  -/  base-4.9.1.0:GHC.Show eca5834daba3b6a2bbbe64ab52056707
+import  -/  base-4.9.1.0:Prelude 74b3e204395920329f6de9d97206abe9
+import  -/  base-4.9.1.0:System.Environment 438c0b0bc0f94461b9c946d062a7eab9
+import  -/  base-4.9.1.0:System.IO 5daf3f384209c11d9566e3409af8ec5d
+import  -/  base-4.9.1.0:Text.ParserCombinators.ReadPrec 5cc8ec62ab8aeda628247695b64f5e42
+import  -/  base-4.9.1.0:Text.Read 3cc85705eeac93ec93da7f5edfd7bc15
+import  -/  base-4.9.1.0:Text.Read.Lex a861691fe58d2d0a125f55a5ebadf631
+import  -/  ghc-prim-0.5.0.0:GHC.Classes 16d48e012d23eaef9bca91ccdd572c02
+import  -/  ghc-prim-0.5.0.0:GHC.Types 89f8de4f08018c9177c98d979eae0e45
+import  -/  network-2.6.3.2@network-2.6.3.2-F0OcsS89osODGCGHNf1FTk:Network ccc7f9bd02df797c247d61468b8591fb
+import  -/  network-2.6.3.2@network-2.6.3.2-F0OcsS89osODGCGHNf1FTk:Network.Socket e2e659f1c7cc333004207b8e0bae86f5
+import  -/  network-2.6.3.2@network-2.6.3.2-F0OcsS89osODGCGHNf1FTk:Network.Socket.Types 4069a95f9ee733839da5467ed0ac257c
+import  -/  p2p-0.1.0.0@p2p-0.1.0.0-6n0WPTa0UB8GnQlfIhCsVe:Lib 65a0cd2d6b89709f64aae0388bdd0d34
+import  -/  stm-2.4.4.1@stm-2.4.4.1-JQn4hNPyYjP5m9AcbI88Ve:Control.Concurrent.STM d9d67004f2499de74f3785f434493839
+import  -/  stm-2.4.4.1@stm-2.4.4.1-JQn4hNPyYjP5m9AcbI88Ve:Control.Concurrent.STM.TVar 4ef081b959196cc665a833ff1a615ced
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage :: GHC.Read.Read Main.Message
+  DFunId
+  {- Strictness: m, Inline: [ALWAYS] CONLIKE,
+     Unfolding: DFun:.
+                  @ Main.Message
+                  Main.$fReadMessage_$creadsPrec
+                  Main.$fReadMessage_$creadList
+                  Main.$fReadMessage_$creadPrec
+                  Main.$fReadMessage_$creadListPrec -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage1 ::
+    Text.ParserCombinators.ReadPrec.Prec
+    -> forall b.
+       ([Main.Message] -> Text.ParserCombinators.ReadP.P b)
+       -> Text.ParserCombinators.ReadP.P b
+  {- Arity: 2, Strictness: <L,U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (eta :: Text.ParserCombinators.ReadPrec.Prec)
+                   @ b
+                   (eta1 :: [Main.Message] -> Text.ParserCombinators.ReadP.P b) ->
+                 GHC.Read.list1
+                   @ Main.Message
+                   Main.$fReadMessage2
+                     `cast`
+                   (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                             <Main.Message>_R))
+                   eta
+                   @ b
+                   eta1) -}
+0eb25d449971c39110c34a06c7ca9828
+  $fReadMessage10 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Newtx"#) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage11 ::
+    (Main.Message -> Text.ParserCombinators.ReadP.P b1)
+    -> Text.ParserCombinators.ReadP.P b1
+  {- Arity: 1,
+     Unfolding: (\ @ b1
+                   (k1 :: Main.Message -> Text.ParserCombinators.ReadP.P b1) ->
+                 let {
+                   lvl81 :: Text.ParserCombinators.ReadP.P b1
+                   = let {
+                       lvl82 :: Text.ParserCombinators.ReadP.P b1
+                       = GHC.Read.list1
+                           @ Main.Peer
+                           Main.$fReadMessage13
+                             `cast`
+                           (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0] <Main.Peer>_R))
+                           Main.$fReadMessage6
+                           @ b1
+                           (\ (a1 :: Main.Peers) -> k1 (Main.Status a1))
+                     } in
+                     Text.Read.Lex.expect2
+                       @ b1
+                       (\ (a1 :: Text.Read.Lex.Lexeme) ->
+                        case a1 of wild {
+                          DEFAULT -> Text.ParserCombinators.ReadP.Fail @ b1
+                          Text.Read.Lex.Ident a2
+                          -> case GHC.Base.eqString a2 Main.$fReadMessage12 of wild1 {
+                               GHC.Types.False -> Text.ParserCombinators.ReadP.Fail @ b1
+                               GHC.Types.True -> lvl82 } })
+                 } in
+                 let {
+                   k :: () -> Text.ParserCombinators.ReadP.P b1
+                     {- Arity: 1, Strictness: <L,A>, Inline: INLINE[0],
+                        Unfolding: InlineRule (1, True, True) (\ (w4 :: ()) -> lvl81) -}
+                   = \ (w4 :: ()) -> lvl81
+                 } in
+                 Text.ParserCombinators.ReadP.Look
+                   @ b1
+                   (\ (a :: GHC.Base.String) ->
+                    (Text.ParserCombinators.ReadP.skipSpaces_skip a)
+                      `cast`
+                    (Text.ParserCombinators.ReadP.N:ReadP[0] <()>_R)
+                      @ b1
+                      k)) -}
+a6125cd5e36a00fabdda96df084c0488
+  $fReadMessage12 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Status"#) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fReadMessage13 ::
+    Text.ParserCombinators.ReadPrec.Prec
+    -> Text.ParserCombinators.ReadP.ReadP Main.Peer
+  {- Arity: 1,
+     Unfolding: (GHC.Read.parens1
+                   @ Main.Peer
+                   Main.$fReadMessage14
+                     `cast`
+                   (Trans
+                        (<Text.ParserCombinators.ReadPrec.Prec>_R
+                         ->_R Sym (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Peer>_R))
+                        (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                                  <Main.Peer>_R)))) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fReadMessage14 ::
+    Text.ParserCombinators.ReadPrec.Prec
+    -> forall b.
+       (Main.Peer -> Text.ParserCombinators.ReadP.P b)
+       -> Text.ParserCombinators.ReadP.P b
+  {- Arity: 2, Strictness: <S(S),1*U(U)><L,C(U)>, Inline: INLINE[0],
+     Unfolding: InlineRule (2, True, False)
+                (\ (w :: Text.ParserCombinators.ReadPrec.Prec)
+                   @ b
+                   (w1 :: Main.Peer -> Text.ParserCombinators.ReadP.P b) ->
+                 case w of ww { GHC.Types.I# ww1 ->
+                 Main.$w$creadPrec ww1 @ b w1 }) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage15 ::
+    (Main.Message -> Text.ParserCombinators.ReadP.P b1)
+    -> Text.ParserCombinators.ReadP.P b1
+  {- Arity: 1,
+     Unfolding: (\ @ b1
+                   (k1 :: Main.Message -> Text.ParserCombinators.ReadP.P b1) ->
+                 let {
+                   lvl81 :: Text.ParserCombinators.ReadP.P b1
+                   = let {
+                       lvl82 :: Text.ParserCombinators.ReadP.P b1
+                       = GHC.Read.$fReadChar2
+                           Main.$fReadMessage6
+                           @ b1
+                           (\ (a1 :: Network.Socket.HostName) ->
+                            (Network.Socket.Types.$fReadPortNumber4 Main.$fReadMessage6)
+                              `cast`
+                            (Text.ParserCombinators.ReadP.N:ReadP[0]
+                                 <Network.Socket.Types.PortNumber>_R)
+                              @ b1
+                              (\ (a2 :: Network.Socket.Types.PortNumber) ->
+                               k1 (Main.Connect a1 a2)))
+                     } in
+                     Text.Read.Lex.expect2
+                       @ b1
+                       (\ (a1 :: Text.Read.Lex.Lexeme) ->
+                        case a1 of wild {
+                          DEFAULT -> Text.ParserCombinators.ReadP.Fail @ b1
+                          Text.Read.Lex.Ident a2
+                          -> case GHC.Base.eqString a2 Main.$fReadMessage16 of wild1 {
+                               GHC.Types.False -> Text.ParserCombinators.ReadP.Fail @ b1
+                               GHC.Types.True -> lvl82 } })
+                 } in
+                 let {
+                   k :: () -> Text.ParserCombinators.ReadP.P b1
+                     {- Arity: 1, Strictness: <L,A>, Inline: INLINE[0],
+                        Unfolding: InlineRule (1, True, True) (\ (w4 :: ()) -> lvl81) -}
+                   = \ (w4 :: ()) -> lvl81
+                 } in
+                 Text.ParserCombinators.ReadP.Look
+                   @ b1
+                   (\ (a :: GHC.Base.String) ->
+                    (Text.ParserCombinators.ReadP.skipSpaces_skip a)
+                      `cast`
+                    (Text.ParserCombinators.ReadP.N:ReadP[0] <()>_R)
+                      @ b1
+                      k)) -}
+4afbcb6df929d6c5b718fa5056de62b7
+  $fReadMessage16 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Connect"#) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage17 ::
+    [(GHC.Base.String,
+      Text.ParserCombinators.ReadPrec.ReadPrec Main.Message)]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ (GHC.Base.String,
+                      Text.ParserCombinators.ReadPrec.ReadPrec Main.Message)
+                   Main.$fReadMessage22
+                   Main.$fReadMessage18) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage18 ::
+    [(GHC.Base.String,
+      Text.ParserCombinators.ReadPrec.ReadPrec Main.Message)]
+  {- Strictness: m2,
+     Unfolding: (GHC.Types.:
+                   @ (GHC.Base.String,
+                      Text.ParserCombinators.ReadPrec.ReadPrec Main.Message)
+                   Main.$fReadMessage19
+                   (GHC.Types.[]
+                      @ (GHC.Base.String,
+                         Text.ParserCombinators.ReadPrec.ReadPrec Main.Message))) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage19 ::
+    ([GHC.Types.Char],
+     Text.ParserCombinators.ReadPrec.ReadPrec Main.Message)
+  {- Strictness: m,
+     Unfolding: ((Main.$fReadMessage21,
+                  Main.$fReadMessage20
+                    `cast`
+                  (Trans
+                       (<Text.ParserCombinators.ReadPrec.Prec>_R
+                        ->_R Sym (Text.ParserCombinators.ReadP.N:ReadP[0]
+                                      <Main.Message>_R))
+                       (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                                 <Main.Message>_R))))) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage2 ::
+    Text.ParserCombinators.ReadPrec.Prec
+    -> Text.ParserCombinators.ReadP.ReadP Main.Message
+  {- Arity: 1,
+     Unfolding: (GHC.Read.parens1
+                   @ Main.Message
+                   Main.$fReadMessage3
+                     `cast`
+                   (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                             <Main.Message>_R))) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage20 ::
+    Text.ParserCombinators.ReadPrec.Prec
+    -> forall b.
+       (Main.Message -> Text.ParserCombinators.ReadP.P b)
+       -> Text.ParserCombinators.ReadP.P b
+  {- Arity: 2, HasNoCafRefs, Strictness: <L,A><C(S),1*C1(U)>,
+     Unfolding: InlineRule (2, True, True)
+                (\ (ds :: Text.ParserCombinators.ReadPrec.Prec)
+                   @ b
+                   (eta :: Main.Message -> Text.ParserCombinators.ReadP.P b) ->
+                 eta Main.Quit) -}
+b3e6d139141b1872df6d43401d1d06df
+  $fReadMessage21 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Quit"#) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage22 ::
+    ([GHC.Types.Char],
+     Text.ParserCombinators.ReadPrec.ReadPrec Main.Message)
+  {- Strictness: m,
+     Unfolding: ((Main.$fReadMessage24,
+                  Main.$fReadMessage23
+                    `cast`
+                  (Trans
+                       (<Text.ParserCombinators.ReadPrec.Prec>_R
+                        ->_R Sym (Text.ParserCombinators.ReadP.N:ReadP[0]
+                                      <Main.Message>_R))
+                       (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                                 <Main.Message>_R))))) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage23 ::
+    Text.ParserCombinators.ReadPrec.Prec
+    -> forall b.
+       (Main.Message -> Text.ParserCombinators.ReadP.P b)
+       -> Text.ParserCombinators.ReadP.P b
+  {- Arity: 2, HasNoCafRefs, Strictness: <L,A><C(S),1*C1(U)>,
+     Unfolding: InlineRule (2, True, True)
+                (\ (ds :: Text.ParserCombinators.ReadPrec.Prec)
+                   @ b
+                   (eta :: Main.Message -> Text.ParserCombinators.ReadP.P b) ->
+                 eta Main.GetPeers) -}
+8019b657d853dd795e32074986f601b8
+  $fReadMessage24 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "GetPeers"#) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage25 :: Text.ParserCombinators.ReadP.P [Main.Message]
+  {- Unfolding: (GHC.Read.list1
+                   @ Main.Message
+                   Main.$fReadMessage2
+                     `cast`
+                   (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                             <Main.Message>_R))
+                   GHC.Read.$fRead()5
+                   @ [Main.Message]
+                   (Text.ParserCombinators.ReadP.$fApplicativeP_$cpure
+                      @ [Main.Message])) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage3 ::
+    Text.ParserCombinators.ReadPrec.Prec
+    -> Text.ParserCombinators.ReadP.ReadP Main.Message
+  {- Arity: 1, Strictness: <L,U(U)>,
+     Unfolding: (\ (n :: Text.ParserCombinators.ReadPrec.Prec) ->
+                 let {
+                   ds2 :: Text.ParserCombinators.ReadP.ReadP Main.Message
+                   = GHC.Read.choose2 @ Main.Message Main.$fReadMessage17 n
+                 } in
+                 let {
+                   ds1 :: Text.ParserCombinators.ReadP.ReadP Main.Message
+                   = case n of wild { GHC.Types.I# x ->
+                     case GHC.Prim.tagToEnum#
+                            @ GHC.Types.Bool
+                            (GHC.Prim.<=# x 10#) of wild2 {
+                       GHC.Types.False
+                       -> (Text.ParserCombinators.ReadP.pfail1 @ Main.Message)
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R))
+                       GHC.Types.True
+                       -> Main.$fReadMessage15
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0]
+                                    <Main.Message>_R)) } }
+                 } in
+                 let {
+                   ds3 :: Text.ParserCombinators.ReadP.ReadP Main.Message
+                   = case n of wild { GHC.Types.I# x ->
+                     case GHC.Prim.tagToEnum#
+                            @ GHC.Types.Bool
+                            (GHC.Prim.<=# x 10#) of wild2 {
+                       GHC.Types.False
+                       -> (Text.ParserCombinators.ReadP.pfail1 @ Main.Message)
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R))
+                       GHC.Types.True
+                       -> Main.$fReadMessage11
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0]
+                                    <Main.Message>_R)) } }
+                 } in
+                 let {
+                   ds4 :: Text.ParserCombinators.ReadP.ReadP Main.Message
+                   = case n of wild { GHC.Types.I# x ->
+                     case GHC.Prim.tagToEnum#
+                            @ GHC.Types.Bool
+                            (GHC.Prim.<=# x 10#) of wild2 {
+                       GHC.Types.False
+                       -> (Text.ParserCombinators.ReadP.pfail1 @ Main.Message)
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R))
+                       GHC.Types.True
+                       -> Main.$fReadMessage9
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0]
+                                    <Main.Message>_R)) } }
+                 } in
+                 let {
+                   ds5 :: Text.ParserCombinators.ReadP.ReadP Main.Message
+                   = case n of wild { GHC.Types.I# x ->
+                     case GHC.Prim.tagToEnum#
+                            @ GHC.Types.Bool
+                            (GHC.Prim.<=# x 10#) of wild2 {
+                       GHC.Types.False
+                       -> (Text.ParserCombinators.ReadP.pfail1 @ Main.Message)
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R))
+                       GHC.Types.True
+                       -> Main.$fReadMessage7
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0]
+                                    <Main.Message>_R)) } }
+                 } in
+                 let {
+                   ds6 :: Text.ParserCombinators.ReadP.ReadP Main.Message
+                   = case n of wild { GHC.Types.I# x ->
+                     case GHC.Prim.tagToEnum#
+                            @ GHC.Types.Bool
+                            (GHC.Prim.<=# x 10#) of wild2 {
+                       GHC.Types.False
+                       -> (Text.ParserCombinators.ReadP.pfail1 @ Main.Message)
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R))
+                       GHC.Types.True
+                       -> Main.$fReadMessage4
+                            `cast`
+                          (Sym (Text.ParserCombinators.ReadP.N:ReadP[0]
+                                    <Main.Message>_R)) } }
+                 } in
+                 (\ @ b (k :: Main.Message -> Text.ParserCombinators.ReadP.P b) ->
+                  Text.ParserCombinators.ReadP.$fAlternativeP_$c<|>
+                    @ b
+                    (ds2
+                       `cast`
+                     (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R)
+                       @ b
+                       k)
+                    (Text.ParserCombinators.ReadP.$fAlternativeP_$c<|>
+                       @ b
+                       (ds1
+                          `cast`
+                        (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R)
+                          @ b
+                          k)
+                       (Text.ParserCombinators.ReadP.$fAlternativeP_$c<|>
+                          @ b
+                          (ds3
+                             `cast`
+                           (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R)
+                             @ b
+                             k)
+                          (Text.ParserCombinators.ReadP.$fAlternativeP_$c<|>
+                             @ b
+                             (ds4
+                                `cast`
+                              (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R)
+                                @ b
+                                k)
+                             (Text.ParserCombinators.ReadP.$fAlternativeP_$c<|>
+                                @ b
+                                (ds5
+                                   `cast`
+                                 (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R)
+                                   @ b
+                                   k)
+                                (ds6
+                                   `cast`
+                                 (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R)
+                                   @ b
+                                   k))))))
+                   `cast`
+                 (Sym (Text.ParserCombinators.ReadP.N:ReadP[0]
+                           <Main.Message>_R))) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage4 ::
+    (Main.Message -> Text.ParserCombinators.ReadP.P b1)
+    -> Text.ParserCombinators.ReadP.P b1
+  {- Arity: 1,
+     Unfolding: (\ @ b1
+                   (k1 :: Main.Message -> Text.ParserCombinators.ReadP.P b1) ->
+                 let {
+                   lvl81 :: Text.ParserCombinators.ReadP.P b1
+                   = let {
+                       lvl82 :: Text.ParserCombinators.ReadP.P b1
+                       = GHC.Read.$fReadChar2
+                           Main.$fReadMessage6
+                           @ b1
+                           (\ (a1 :: GHC.Base.String) -> k1 (Main.Unknown a1))
+                     } in
+                     Text.Read.Lex.expect2
+                       @ b1
+                       (\ (a1 :: Text.Read.Lex.Lexeme) ->
+                        case a1 of wild {
+                          DEFAULT -> Text.ParserCombinators.ReadP.Fail @ b1
+                          Text.Read.Lex.Ident a2
+                          -> case GHC.Base.eqString a2 Main.$fReadMessage5 of wild1 {
+                               GHC.Types.False -> Text.ParserCombinators.ReadP.Fail @ b1
+                               GHC.Types.True -> lvl82 } })
+                 } in
+                 let {
+                   k :: () -> Text.ParserCombinators.ReadP.P b1
+                     {- Arity: 1, Strictness: <L,A>, Inline: INLINE[0],
+                        Unfolding: InlineRule (1, True, True) (\ (w4 :: ()) -> lvl81) -}
+                   = \ (w4 :: ()) -> lvl81
+                 } in
+                 Text.ParserCombinators.ReadP.Look
+                   @ b1
+                   (\ (a :: GHC.Base.String) ->
+                    (Text.ParserCombinators.ReadP.skipSpaces_skip a)
+                      `cast`
+                    (Text.ParserCombinators.ReadP.N:ReadP[0] <()>_R)
+                      @ b1
+                      k)) -}
+ee044670c6275a0b852fe50c1531babd
+  $fReadMessage5 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Unknown"#) -}
+2253f22fade62a7a135e950ad2f960c0
+  $fReadMessage6 :: GHC.Types.Int
+  {- HasNoCafRefs, Unfolding: (GHC.Types.I# 11#) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage7 ::
+    (Main.Message -> Text.ParserCombinators.ReadP.P b1)
+    -> Text.ParserCombinators.ReadP.P b1
+  {- Arity: 1,
+     Unfolding: (\ @ b1
+                   (k1 :: Main.Message -> Text.ParserCombinators.ReadP.P b1) ->
+                 let {
+                   lvl81 :: Text.ParserCombinators.ReadP.P b1
+                   = let {
+                       lvl82 :: Text.ParserCombinators.ReadP.P b1
+                       = GHC.Read.$fReadInt3
+                           GHC.Read.$fReadInt_$sconvertInt
+                           Main.$fReadMessage6
+                           @ b1
+                           (\ (a1 :: Main.Tx) ->
+                            GHC.Read.$fReadInt3
+                              GHC.Read.$fReadInt_$sconvertInt
+                              Main.$fReadMessage6
+                              @ b1
+                              (\ (a2 :: Main.Tx) -> k1 (Main.Oldtx a1 a2)))
+                     } in
+                     Text.Read.Lex.expect2
+                       @ b1
+                       (\ (a1 :: Text.Read.Lex.Lexeme) ->
+                        case a1 of wild {
+                          DEFAULT -> Text.ParserCombinators.ReadP.Fail @ b1
+                          Text.Read.Lex.Ident a2
+                          -> case GHC.Base.eqString a2 Main.$fReadMessage8 of wild1 {
+                               GHC.Types.False -> Text.ParserCombinators.ReadP.Fail @ b1
+                               GHC.Types.True -> lvl82 } })
+                 } in
+                 let {
+                   k :: () -> Text.ParserCombinators.ReadP.P b1
+                     {- Arity: 1, Strictness: <L,A>, Inline: INLINE[0],
+                        Unfolding: InlineRule (1, True, True) (\ (w4 :: ()) -> lvl81) -}
+                   = \ (w4 :: ()) -> lvl81
+                 } in
+                 Text.ParserCombinators.ReadP.Look
+                   @ b1
+                   (\ (a :: GHC.Base.String) ->
+                    (Text.ParserCombinators.ReadP.skipSpaces_skip a)
+                      `cast`
+                    (Text.ParserCombinators.ReadP.N:ReadP[0] <()>_R)
+                      @ b1
+                      k)) -}
+b3072bcc0fa460afb8f8061ac7c1a67b
+  $fReadMessage8 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Oldtx"#) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage9 ::
+    (Main.Message -> Text.ParserCombinators.ReadP.P b1)
+    -> Text.ParserCombinators.ReadP.P b1
+  {- Arity: 1,
+     Unfolding: (\ @ b1
+                   (k1 :: Main.Message -> Text.ParserCombinators.ReadP.P b1) ->
+                 let {
+                   lvl81 :: Text.ParserCombinators.ReadP.P b1
+                   = let {
+                       lvl82 :: Text.ParserCombinators.ReadP.P b1
+                       = GHC.Read.$fReadInt3
+                           GHC.Read.$fReadInt_$sconvertInt
+                           Main.$fReadMessage6
+                           @ b1
+                           (\ (a1 :: Main.Tx) -> k1 (Main.Newtx a1))
+                     } in
+                     Text.Read.Lex.expect2
+                       @ b1
+                       (\ (a1 :: Text.Read.Lex.Lexeme) ->
+                        case a1 of wild {
+                          DEFAULT -> Text.ParserCombinators.ReadP.Fail @ b1
+                          Text.Read.Lex.Ident a2
+                          -> case GHC.Base.eqString a2 Main.$fReadMessage10 of wild1 {
+                               GHC.Types.False -> Text.ParserCombinators.ReadP.Fail @ b1
+                               GHC.Types.True -> lvl82 } })
+                 } in
+                 let {
+                   k :: () -> Text.ParserCombinators.ReadP.P b1
+                     {- Arity: 1, Strictness: <L,A>, Inline: INLINE[0],
+                        Unfolding: InlineRule (1, True, True) (\ (w4 :: ()) -> lvl81) -}
+                   = \ (w4 :: ()) -> lvl81
+                 } in
+                 Text.ParserCombinators.ReadP.Look
+                   @ b1
+                   (\ (a :: GHC.Base.String) ->
+                    (Text.ParserCombinators.ReadP.skipSpaces_skip a)
+                      `cast`
+                    (Text.ParserCombinators.ReadP.N:ReadP[0] <()>_R)
+                      @ b1
+                      k)) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage_$creadList ::
+    Text.ParserCombinators.ReadP.ReadS [Main.Message]
+  {- Arity: 1,
+     Unfolding: (Text.ParserCombinators.ReadP.run
+                   @ [Main.Message]
+                   Main.$fReadMessage25) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage_$creadListPrec ::
+    Text.ParserCombinators.ReadPrec.ReadPrec [Main.Message]
+  {- Arity: 2, Strictness: <L,U><L,U>,
+     Unfolding: InlineRule (0, True, True)
+                Main.$fReadMessage1
+                  `cast`
+                (Trans
+                     (<Text.ParserCombinators.ReadPrec.Prec>_R
+                      ->_R Sym (Text.ParserCombinators.ReadP.N:ReadP[0]
+                                    <[Main.Message]>_R))
+                     (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                               <[Main.Message]>_R))) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage_$creadPrec ::
+    Text.ParserCombinators.ReadPrec.ReadPrec Main.Message
+  {- Arity: 1,
+     Unfolding: InlineRule (0, True, True)
+                Main.$fReadMessage2
+                  `cast`
+                (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                          <Main.Message>_R)) -}
+c9727f874c27fecc52c908de32f05685
+  $fReadMessage_$creadsPrec ::
+    GHC.Types.Int -> Text.ParserCombinators.ReadP.ReadS Main.Message
+  {- Arity: 1, Strictness: <L,U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (eta :: GHC.Types.Int) ->
+                 Text.ParserCombinators.ReadP.run
+                   @ Main.Message
+                   ((GHC.Read.parens1
+                       @ Main.Message
+                       Main.$fReadMessage3
+                         `cast`
+                       (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                                 <Main.Message>_R))
+                       eta)
+                      `cast`
+                    (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R)
+                      @ Main.Message
+                      (Text.ParserCombinators.ReadP.$fApplicativeP_$cpure
+                         @ Main.Message))) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fReadPeer :: GHC.Read.Read Main.Peer
+  DFunId
+  {- Strictness: m, Inline: [ALWAYS] CONLIKE,
+     Unfolding: DFun:.
+                  @ Main.Peer
+                  Main.$fReadPeer_$creadsPrec
+                  Main.$fReadPeer_$creadList
+                  Main.$fReadPeer_$creadPrec
+                  Main.$fReadPeer_$creadListPrec -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fReadPeer1 ::
+    Text.ParserCombinators.ReadPrec.Prec
+    -> forall b.
+       ([Main.Peer] -> Text.ParserCombinators.ReadP.P b)
+       -> Text.ParserCombinators.ReadP.P b
+  {- Arity: 2, Strictness: <L,U><L,U>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (eta :: Text.ParserCombinators.ReadPrec.Prec)
+                   @ b
+                   (eta1 :: [Main.Peer] -> Text.ParserCombinators.ReadP.P b) ->
+                 GHC.Read.list1
+                   @ Main.Peer
+                   Main.$fReadMessage13
+                     `cast`
+                   (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0] <Main.Peer>_R))
+                   eta
+                   @ b
+                   eta1) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fReadPeer2 :: Text.ParserCombinators.ReadP.P [Main.Peer]
+  {- Unfolding: (GHC.Read.list1
+                   @ Main.Peer
+                   Main.$fReadMessage13
+                     `cast`
+                   (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0] <Main.Peer>_R))
+                   GHC.Read.$fRead()5
+                   @ [Main.Peer]
+                   (Text.ParserCombinators.ReadP.$fApplicativeP_$cpure
+                      @ [Main.Peer])) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fReadPeer_$creadList ::
+    Text.ParserCombinators.ReadP.ReadS [Main.Peer]
+  {- Arity: 1,
+     Unfolding: (Text.ParserCombinators.ReadP.run
+                   @ [Main.Peer]
+                   Main.$fReadPeer2) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fReadPeer_$creadListPrec ::
+    Text.ParserCombinators.ReadPrec.ReadPrec [Main.Peer]
+  {- Arity: 2, Strictness: <L,U><L,U>,
+     Unfolding: InlineRule (0, True, True)
+                Main.$fReadPeer1
+                  `cast`
+                (Trans
+                     (<Text.ParserCombinators.ReadPrec.Prec>_R
+                      ->_R Sym (Text.ParserCombinators.ReadP.N:ReadP[0] <[Main.Peer]>_R))
+                     (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                               <[Main.Peer]>_R))) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fReadPeer_$creadPrec ::
+    Text.ParserCombinators.ReadPrec.ReadPrec Main.Peer
+  {- Arity: 1,
+     Unfolding: InlineRule (0, True, True)
+                Main.$fReadMessage13
+                  `cast`
+                (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                          <Main.Peer>_R)) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fReadPeer_$creadsPrec ::
+    GHC.Types.Int -> Text.ParserCombinators.ReadP.ReadS Main.Peer
+  {- Arity: 1, Strictness: <L,U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (eta :: GHC.Types.Int) ->
+                 Text.ParserCombinators.ReadP.run
+                   @ Main.Peer
+                   ((GHC.Read.parens1
+                       @ Main.Peer
+                       Main.$fReadMessage14
+                         `cast`
+                       (Trans
+                            (<Text.ParserCombinators.ReadPrec.Prec>_R
+                             ->_R Sym (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Peer>_R))
+                            (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                                      <Main.Peer>_R)))
+                       eta)
+                      `cast`
+                    (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Peer>_R)
+                      @ Main.Peer
+                      (Text.ParserCombinators.ReadP.$fApplicativeP_$cpure
+                         @ Main.Peer))) -}
+c9727f874c27fecc52c908de32f05685
+  $fShowMessage :: GHC.Show.Show Main.Message
+  DFunId
+  {- Strictness: m, Inline: [ALWAYS] CONLIKE,
+     Unfolding: DFun:.
+                  @ Main.Message
+                  Main.$fShowMessage_$cshowsPrec
+                  Main.$fShowMessage_$cshow
+                  Main.$fShowMessage_$cshowList -}
+c9727f874c27fecc52c908de32f05685
+  $fShowMessage1 :: Main.Message -> GHC.Show.ShowS
+  {- Arity: 1,
+     Unfolding: (Main.$fShowMessage_$cshowsPrec Main.$fShowMessage2) -}
+e76b20b31d47ccc53ba36fc42e5446f3
+  $fShowMessage2 :: GHC.Types.Int
+  {- HasNoCafRefs, Strictness: m, Unfolding: (GHC.Types.I# 0#) -}
+c9727f874c27fecc52c908de32f05685
+  $fShowMessage_$cshow :: Main.Message -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (x :: Main.Message) ->
+                 Main.$fShowMessage_$cshowsPrec
+                   GHC.Show.shows22
+                   x
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+c9727f874c27fecc52c908de32f05685
+  $fShowMessage_$cshowList :: [Main.Message] -> GHC.Show.ShowS
+  {- Arity: 2,
+     Unfolding: (GHC.Show.showList__
+                   @ Main.Message
+                   Main.$fShowMessage1) -}
+c9727f874c27fecc52c908de32f05685
+  $fShowMessage_$cshowsPrec ::
+    GHC.Types.Int -> Main.Message -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <L,1*U(U)><S,1*U> -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fShowPeer :: GHC.Show.Show Main.Peer
+  DFunId
+  {- Strictness: m, Inline: [ALWAYS] CONLIKE,
+     Unfolding: DFun:.
+                  @ Main.Peer
+                  Main.$fShowPeer_$cshowsPrec
+                  Main.$fShowPeer_$cshow
+                  Main.$fShowPeer_$cshowList -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fShowPeer1 :: Main.Peer -> GHC.Show.ShowS
+  {- Arity: 1,
+     Unfolding: (\ (w :: Main.Peer) ->
+                 case w of ww { Main.Peer ww1 ww2 ->
+                 Main.$w$cshowsPrec 0# ww1 ww2 }) -}
+cd5d8eaba09564b95cf8fc9c1f27cb56
+  $fShowPeer2 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "}"#) -}
+db56025476f18b81ae52ab479ef87b8e
+  $fShowPeer3 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "port = "#) -}
+6f14022ff7deeff0e59b23c2d88367de
+  $fShowPeer4 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# ", "#) -}
+9bf8da69a94546f39cd76a798057bb16
+  $fShowPeer5 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "hostName = "#) -}
+3d56c12eb09d953c75035d8cfea00b82
+  $fShowPeer6 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Peer {"#) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fShowPeer_$cshow :: Main.Peer -> GHC.Base.String
+  {- Arity: 1, Strictness: <S,1*U(U,1*U(U))>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (x :: Main.Peer) ->
+                 Main.$fShowPeer_$cshowsPrec
+                   GHC.Show.shows22
+                   x
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fShowPeer_$cshowList :: [Main.Peer] -> GHC.Show.ShowS
+  {- Arity: 2,
+     Unfolding: (GHC.Show.showList__ @ Main.Peer Main.$fShowPeer1) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $fShowPeer_$cshowsPrec ::
+    GHC.Types.Int -> Main.Peer -> GHC.Show.ShowS
+  {- Arity: 2, Strictness: <S(S),1*U(U)><S,1*U(U,1*U(U))>,
+     Inline: INLINE[0],
+     Unfolding: InlineRule (2, True, False)
+                (\ (w :: GHC.Types.Int) (w1 :: Main.Peer) ->
+                 case w of ww { GHC.Types.I# ww1 ->
+                 case w1 of ww2 { Main.Peer ww3 ww4 ->
+                 Main.$w$cshowsPrec ww1 ww3 ww4 } }) -}
+551a1daad0dbe2650c87ccabf909049d
+  $tc'Connect :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   9629313659479061083##
+                   16476387237544011540##
+                   Main.$trModule
+                   Main.$tc'Connect1) -}
+8a14ac7ccfbceb7f6a0e3761cb535105
+  $tc'Connect1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Connect"#) -}
+840cf84d7e3485a9132387fcb6212c22
+  $tc'GetPeers :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   1415238633995373927##
+                   1073162623767559473##
+                   Main.$trModule
+                   Main.$tc'GetPeers1) -}
+2455ebb94ad66eb70ed9b079f9844b9e
+  $tc'GetPeers1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'GetPeers"#) -}
+ec72b18ebef2a642b362688866122c6f
+  $tc'Newtx :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   8385544577067349911##
+                   12425542020579357486##
+                   Main.$trModule
+                   Main.$tc'Newtx1) -}
+f7beec657d5b4bc7fcf6f21ee98ea8bb
+  $tc'Newtx1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Newtx"#) -}
+f4e5dbe00d9d9ec171a6ac2ebc9cf36c
+  $tc'Oldtx :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   10251260596657740765##
+                   3792881077680237220##
+                   Main.$trModule
+                   Main.$tc'Oldtx1) -}
+6a89b0ca857d98eb458f041f39d68e06
+  $tc'Oldtx1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Oldtx"#) -}
+23a707e7e7dfdc5f02655d7f33eb3a1c
+  $tc'Peer :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   13446264858389066231##
+                   17697940715123489838##
+                   Main.$trModule
+                   Main.$tc'Peer1) -}
+ea8daeea1f9d8505a257261026deb9a6
+  $tc'Peer1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Peer"#) -}
+a840fab6491db8f2a4c8abd6d8f51917
+  $tc'Quit :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   4048674269878030521##
+                   16442667604830905065##
+                   Main.$trModule
+                   Main.$tc'Quit1) -}
+6fc2f149faf8fcf40241a643d238ff33
+  $tc'Quit1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Quit"#) -}
+51a25dc8845cbe29a611259c71036987
+  $tc'Status :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   6229551880763027640##
+                   6211676767592600910##
+                   Main.$trModule
+                   Main.$tc'Status1) -}
+d84ee0e3715496875aa708b37634e609
+  $tc'Status1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Status"#) -}
+a8cf9dbc41826cee3d19d84eba5d486c
+  $tc'Unknown :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   13922879850743200154##
+                   7294905718209173140##
+                   Main.$trModule
+                   Main.$tc'Unknown1) -}
+6c98503a9bfe5c9105f81e30f71e301e
+  $tc'Unknown1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "'Unknown"#) -}
+a317a2b68abab7bca30880bdf39d36dc
+  $tcMessage :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   11750200497582023075##
+                   1107912994446066806##
+                   Main.$trModule
+                   Main.$tcMessage1) -}
+9d158e0a5fe47b777c8610b9e6ae8f21
+  $tcMessage1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "Message"#) -}
+125223e503792d37b18136749fe656ac
+  $tcPeer :: GHC.Types.TyCon
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.TyCon
+                   3252606491499487589##
+                   5815791274365744400##
+                   Main.$trModule
+                   Main.$tcPeer1) -}
+05445b25fcc7a53816f7a3551587d542
+  $tcPeer1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "Peer"#) -}
+d6831ef04cb9301b090dfae6f7bb7ec7
+  $trModule :: GHC.Types.Module
+  {- HasNoCafRefs, Strictness: m,
+     Unfolding: (GHC.Types.Module Main.$trModule2 Main.$trModule1) -}
+847d9fc3b8e6f0b424199f36b4999bb2
+  $trModule1 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "Main"#) -}
+24ef6042833e75ffd7aa98b83ecca98d
+  $trModule2 :: GHC.Types.TrName
+  {- HasNoCafRefs, Strictness: m1,
+     Unfolding: (GHC.Types.TrNameS "main"#) -}
+38b793210ddb254dd2c12c65ffe0476a
+  $w$creadPrec ::
+    GHC.Prim.Int#
+    -> forall b.
+       (Main.Peer -> Text.ParserCombinators.ReadP.P b)
+       -> Text.ParserCombinators.ReadP.P b
+  {- Arity: 2, Strictness: <S,U><L,C(U)>, Inline: [0] -}
+5ae663294b1a9a3d5ad4674250fe3af3
+  $w$cshowsPrec ::
+    GHC.Prim.Int#
+    -> Network.Socket.HostName
+    -> Network.Socket.Types.PortNumber
+    -> GHC.Show.ShowS
+  {- Arity: 3, Strictness: <S,U><L,U><L,1*U(U)>, Inline: [0],
+     Unfolding: (\ (ww :: GHC.Prim.Int#)
+                   (ww1 :: Network.Socket.HostName)
+                   (ww2 :: Network.Socket.Types.PortNumber) ->
+                 let {
+                   w1 :: GHC.Types.Int
+                   = case ww2
+                            `cast`
+                          (Network.Socket.Types.N:PortNumber[0]) of ds { GHC.Word.W16# ds1 ->
+                     case {__pkg_ccall network-2.6.3.2@network-2.6.3.2-F0OcsS89osODGCGHNf1FTk ntohs GHC.Prim.Word#
+                                                                                                    -> GHC.Prim.State#
+                                                                                                         GHC.Prim.RealWorld
+                                                                                                    -> (# GHC.Prim.State#
+                                                                                                            GHC.Prim.RealWorld,
+                                                                                                          GHC.Prim.Word# #)}
+                            ds1
+                            GHC.Prim.realWorld# of wild { (#,#) ds2 ds3 ->
+                     GHC.Types.I# (GHC.Prim.word2Int# (GHC.Prim.narrow16Word# ds3)) } }
+                 } in
+                 let {
+                   p :: GHC.Show.ShowS {- Arity: 1, Strictness: <L,1*U> -}
+                   = \ (x :: GHC.Base.String) ->
+                     GHC.Base.++
+                       @ GHC.Types.Char
+                       Main.$fShowPeer6
+                       (GHC.Base.++
+                          @ GHC.Types.Char
+                          Main.$fShowPeer5
+                          (GHC.Types.:
+                             @ GHC.Types.Char
+                             GHC.Show.shows6
+                             (GHC.Show.showLitString
+                                ww1
+                                (GHC.Types.:
+                                   @ GHC.Types.Char
+                                   GHC.Show.shows6
+                                   (GHC.Base.++
+                                      @ GHC.Types.Char
+                                      Main.$fShowPeer4
+                                      (GHC.Base.++
+                                         @ GHC.Types.Char
+                                         Main.$fShowPeer3
+                                         (case w1 of ww3 { GHC.Types.I# ww4 ->
+                                          case GHC.Show.$wshowSignedInt
+                                                 0#
+                                                 ww4
+                                                 (GHC.Base.++
+                                                    @ GHC.Types.Char
+                                                    Main.$fShowPeer2
+                                                    x) of ww5 { (#,#) ww6 ww7 ->
+                                          GHC.Types.: @ GHC.Types.Char ww6 ww7 } })))))))
+                 } in
+                 case GHC.Prim.tagToEnum#
+                        @ GHC.Types.Bool
+                        (GHC.Prim.>=# ww 11#) of wild {
+                   GHC.Types.False -> p
+                   GHC.Types.True
+                   -> \ (x :: GHC.Base.String) ->
+                      GHC.Types.:
+                        @ GHC.Types.Char
+                        GHC.Show.shows7
+                        (p (GHC.Types.: @ GHC.Types.Char GHC.Show.shows4 x)) }) -}
+66201a177cb369d7e9ec95aac98b469e
+  $wclientThread ::
+    GHC.IO.Handle.Types.Handle
+    -> Network.Socket.HostName
+    -> Network.Socket.Types.PortNumber
+    -> GHC.Conc.Sync.TVar Main.Peers
+    -> GHC.Conc.Sync.TVar Main.Transactions
+    -> GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 6,
+     Strictness: <L,U><L,1*U><L,1*U(U)><L,U(U)><L,U(U)><S,U>,
+     Inline: [0],
+     Unfolding: (\ (ww :: GHC.IO.Handle.Types.Handle)
+                   (ww1 :: Network.Socket.HostName)
+                   (ww2 :: Network.Socket.Types.PortNumber)
+                   (w :: GHC.Conc.Sync.TVar Main.Peers)
+                   (w1 :: GHC.Conc.Sync.TVar Main.Transactions)
+                   (w2 :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case GHC.IO.Handle.Text.hPutStr2
+                        GHC.IO.Handle.FD.stdout
+                        (GHC.CString.unpackAppendCString#
+                           "Accepted connection from "#
+                           (GHC.Base.++
+                              @ GHC.Types.Char
+                              (GHC.Types.:
+                                 @ GHC.Types.Char
+                                 GHC.Show.shows6
+                                 (GHC.Show.showLitString ww1 Main.clientThread15))
+                              (GHC.CString.unpackAppendCString#
+                                 ":"#
+                                 (case ww2
+                                         `cast`
+                                       (Network.Socket.Types.N:PortNumber[0]) of ww3 { GHC.Word.W16# ww4 ->
+                                  case {__pkg_ccall network-2.6.3.2@network-2.6.3.2-F0OcsS89osODGCGHNf1FTk ntohs GHC.Prim.Word#
+                                                                                                                 -> GHC.Prim.State#
+                                                                                                                      GHC.Prim.RealWorld
+                                                                                                                 -> (# GHC.Prim.State#
+                                                                                                                         GHC.Prim.RealWorld,
+                                                                                                                       GHC.Prim.Word# #)}
+                                         ww4
+                                         GHC.Prim.realWorld# of wild { (#,#) ds ds1 ->
+                                  case GHC.Show.$wshowSignedInt
+                                         0#
+                                         (GHC.Prim.word2Int# (GHC.Prim.narrow16Word# ds1))
+                                         (GHC.Types.[] @ GHC.Types.Char) of ww5 { (#,#) ww6 ww7 ->
+                                  GHC.Types.: @ GHC.Types.Char ww6 ww7 } } }))))
+                        GHC.Types.True
+                        w2 of ds1 { (#,#) ipv ipv1 ->
+                 case GHC.IO.Handle.Internals.withAllHandles__1
+                        GHC.IO.Handle.hSetNewlineMode2
+                        ww
+                        Main.clientThread14
+                          `cast`
+                        (<GHC.IO.Handle.Types.Handle__>_R
+                         ->_R Sym (GHC.Types.N:IO[0] <GHC.IO.Handle.Types.Handle__>_R))
+                        ipv of ds2 { (#,#) ipv2 ipv3 ->
+                 case GHC.IO.Handle.hSetBuffering1
+                        ww
+                        GHC.IO.Handle.Types.LineBuffering
+                        ipv2 of ds3 { (#,#) ipv4 ipv5 ->
+                 letrec {
+                   a' :: GHC.Prim.State# GHC.Prim.RealWorld
+                         -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+                     {- Arity: 1, Strictness: <S,U> -}
+                   = \ (s :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                     case GHC.IO.Handle.Internals.wantReadableHandle_1
+                            @ GHC.Base.String
+                            GHC.IO.Handle.Text.hGetLine4
+                            ww
+                            GHC.IO.Handle.Text.hGetLine2
+                              `cast`
+                            (<GHC.IO.Handle.Types.Handle__>_R
+                             ->_R Sym (GHC.Types.N:IO[0] <GHC.Base.String>_R))
+                            s of ds4 { (#,#) ipv6 ipv7 ->
+                     case Text.Read.readEither6
+                            @ Main.Message
+                            (Text.ParserCombinators.ReadP.run
+                               @ Main.Message
+                               Main.clientThread13
+                               ipv7) of wild {
+                       []
+                       -> case Main.clientThread12
+                          ret_ty (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+                          of {}
+                       : x ds
+                       -> case ds of wild1 {
+                            []
+                            -> case Main.clientThread3
+                                      ww
+                                      w
+                                      w1
+                                      x
+                                      ipv6 of ds5 { (#,#) ipv8 ipv9 ->
+                               a' ipv8 }
+                            : ipv8 ipv9
+                            -> case Main.clientThread2
+                               ret_ty (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+                               of {} } } }
+                 } in
+                 a' ipv4 } } }) -}
+c984eab064aed8f675f938e6ad038aec
+  $wprocessNewTx ::
+    Main.Tx
+    -> GHC.Prim.TVar# GHC.Prim.RealWorld Main.Transactions
+    -> GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, GHC.Base.Maybe Main.Tx #)
+  {- Arity: 3, Strictness: <L,1*U(U)><S,U><S,U>, Inline: [0],
+     Unfolding: (\ (w :: Main.Tx)
+                   (ww :: GHC.Prim.TVar# GHC.Prim.RealWorld Main.Transactions)
+                   (w1 :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case GHC.Prim.readTVar#
+                        @ GHC.Prim.RealWorld
+                        @ Main.Transactions
+                        ww
+                        w1 of ds1 { (#,#) ipv ipv1 ->
+                 case ipv1 of wild {
+                   [] -> (# ipv, Main.clientThread9 #)
+                   : x xs
+                   -> case w of wild1 { GHC.Types.I# x1 ->
+                      case x of wild2 { GHC.Types.I# y ->
+                      case GHC.Prim.tagToEnum#
+                             @ GHC.Types.Bool
+                             (GHC.Prim.==# x1 y) of wild3 {
+                        GHC.Types.False -> (# ipv, GHC.Base.Just @ Main.Tx wild2 #)
+                        GHC.Types.True
+                        -> case GHC.Prim.writeTVar#
+                                  @ GHC.Prim.RealWorld
+                                  @ Main.Transactions
+                                  ww
+                                  (GHC.Types.: @ Main.Tx wild1 wild)
+                                  ipv of s2# { DEFAULT ->
+                           (# s2#, GHC.Base.Nothing @ Main.Tx #) } } } } } }) -}
+c9727f874c27fecc52c908de32f05685
+  data Message
+    = Connect Network.Socket.HostName Network.Socket.Types.PortNumber
+    | GetPeers
+    | Status Main.Peers
+    | Newtx Main.Tx
+    | Oldtx Main.Tx Main.Tx
+    | Quit
+    | Unknown GHC.Base.String
+38b793210ddb254dd2c12c65ffe0476a
+  data Peer
+    = Peer {hostName :: Network.Socket.HostName,
+            port :: Network.Socket.Types.PortNumber}
+a8b36c6d87184cecdb110d7b7a557b53
+  type Peers = [Main.Peer]
+3fa849fe107e5f9ce857ed22a3f3956f
+  type Transactions = [Main.Tx]
+21245b92394061f801c8ca1d169e620c
+  type Tx = GHC.Types.Int
+e282a1f116cef1c890715b00002181b2
+  clientThread ::
+    (GHC.IO.Handle.Types.Handle, Network.Socket.HostName,
+     Network.Socket.Types.PortNumber)
+    -> GHC.Conc.Sync.TVar Main.Peers
+    -> GHC.Conc.Sync.TVar Main.Transactions
+    -> GHC.Types.IO ()
+  {- Arity: 4,
+     Strictness: <S,1*U(U,1*U,1*U(U))><L,U(U)><L,U(U)><S,U>,
+     Unfolding: InlineRule (0, True, True)
+                Main.clientThread1
+                  `cast`
+                (<(GHC.IO.Handle.Types.Handle, Network.Socket.HostName,
+                   Network.Socket.Types.PortNumber)>_R
+                 ->_R <GHC.Conc.Sync.TVar Main.Peers>_R
+                 ->_R <GHC.Conc.Sync.TVar Main.Transactions>_R
+                 ->_R Sym (GHC.Types.N:IO[0] <()>_R)) -}
+2a38b86db39a9a8ac7d032bfa8aea7de
+  clientThread1 ::
+    (GHC.IO.Handle.Types.Handle, Network.Socket.HostName,
+     Network.Socket.Types.PortNumber)
+    -> GHC.Conc.Sync.TVar Main.Peers
+    -> GHC.Conc.Sync.TVar Main.Transactions
+    -> GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 4,
+     Strictness: <S,1*U(U,1*U,1*U(U))><L,U(U)><L,U(U)><S,U>,
+     Inline: INLINE[0],
+     Unfolding: InlineRule (4, True, False)
+                (\ (w :: (GHC.IO.Handle.Types.Handle, Network.Socket.HostName,
+                          Network.Socket.Types.PortNumber))
+                   (w1 :: GHC.Conc.Sync.TVar Main.Peers)
+                   (w2 :: GHC.Conc.Sync.TVar Main.Transactions)
+                   (w3 :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case w of ww { (,,) ww1 ww2 ww3 ->
+                 Main.$wclientThread ww1 ww2 ww3 w1 w2 w3 }) -}
+5e0f54dd51338a9a2af2ebae661352f4
+  clientThread10 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Status "#) -}
+f71a0ddf538d9a0dda4c71e0579edfcf
+  clientThread11 :: GHC.Types.IO ()
+  {- Strictness: x -}
+7788732cfa2c66b223735db0719e98ab
+  clientThread12 :: Main.Message
+  {- Strictness: x -}
+a82db510227dbb62b7b637d9e62b85e8
+  clientThread13 :: Text.ParserCombinators.ReadP.P Main.Message
+  {- Unfolding: ((GHC.Read.parens1
+                    @ Main.Message
+                    Main.$fReadMessage3
+                      `cast`
+                    (Sym (Text.ParserCombinators.ReadPrec.N:ReadPrec[0]
+                              <Main.Message>_R))
+                    Text.ParserCombinators.ReadPrec.minPrec)
+                   `cast`
+                 (Text.ParserCombinators.ReadP.N:ReadP[0] <Main.Message>_R)
+                   @ Main.Message
+                   (Text.Read.readEither5 @ Main.Message)) -}
+4be2c693b0415a4ec9608334eac235b5
+  clientThread14 ::
+    GHC.IO.Handle.Types.Handle__
+    -> GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld,
+          GHC.IO.Handle.Types.Handle__ #)
+  {- Arity: 2,
+     Unfolding: (\ (h_ :: GHC.IO.Handle.Types.Handle__)
+                   (eta :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case h_ of wild { GHC.IO.Handle.Types.Handle__ dev0 enc_state0 dec_state0 $dIODevice $dBufferedIO $dTypeable ds ds1 dt ds2 dt1 dt2 dt3 ds3 ds4 ds5 ds6 ds7 ds8 ->
+                 case GHC.IO.Handle.Internals.flushBuffer1
+                        wild
+                        eta of ds9 { (#,#) ipv ipv1 ->
+                 (# ipv,
+                    GHC.IO.Handle.Types.Handle__
+                      @ dev0
+                      @ enc_state0
+                      @ dec_state0
+                      $dIODevice
+                      $dBufferedIO
+                      $dTypeable
+                      ds
+                      ds1
+                      dt
+                      ds2
+                      dt1
+                      dt2
+                      dt3
+                      ds3
+                      ds4
+                      ds5
+                      GHC.IO.Handle.Types.CRLF
+                      GHC.IO.Handle.Types.CRLF
+                      ds8 #) } }) -}
+631a31ee4ac763a3e6607fcedaac3089
+  clientThread15 :: [GHC.Types.Char]
+  {- HasNoCafRefs,
+     Unfolding: (GHC.Types.:
+                   @ GHC.Types.Char
+                   GHC.Show.shows6
+                   (GHC.Types.[] @ GHC.Types.Char)) -}
+f0ecbf3ef626955f196cd5e6660597e8
+  clientThread2 :: Main.Message
+  {- Strictness: x -}
+2d875b0dafccbe68772c12a9577e75fe
+  clientThread3 ::
+    GHC.IO.Handle.Types.Handle
+    -> GHC.Conc.Sync.TVar Main.Peers
+    -> GHC.Conc.Sync.TVar Main.Transactions
+    -> Main.Message
+    -> GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 5, Strictness: <L,U><L,1*U(U)><L,1*U(U)><S,1*U><S,U>,
+     Unfolding: (\ (h :: GHC.IO.Handle.Types.Handle)
+                   (gpeers :: GHC.Conc.Sync.TVar Main.Peers)
+                   (gtxs :: GHC.Conc.Sync.TVar Main.Transactions)
+                   (eta :: Main.Message)
+                   (eta1 :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case eta of wild {
+                   DEFAULT
+                   -> case Main.clientThread11
+                      ret_ty (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+                      of {}
+                   Main.Connect host port1
+                   -> case GHC.Prim.atomically#
+                             @ ()
+                             (\ (eta2 :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                              case gpeers of wild1 { GHC.Conc.Sync.TVar tvar# ->
+                              case GHC.Prim.readTVar#
+                                     @ GHC.Prim.RealWorld
+                                     @ Main.Peers
+                                     tvar#
+                                     eta2 of ds1 { (#,#) ipv ipv1 ->
+                              case GHC.Prim.writeTVar#
+                                     @ GHC.Prim.RealWorld
+                                     @ Main.Peers
+                                     tvar#
+                                     (GHC.Types.: @ Main.Peer (Main.Peer host port1) ipv1)
+                                     ipv of s2# { DEFAULT ->
+                              (# s2#, GHC.Tuple.() #) } } })
+                             eta1 of ds1 { (#,#) ipv ipv1 ->
+                      (# ipv, GHC.Tuple.() #) }
+                   Main.GetPeers
+                   -> case GHC.Prim.atomically#
+                             @ Main.Peers
+                             (GHC.Conc.Sync.readTVar1 @ Main.Peers gpeers)
+                             eta1 of ds1 { (#,#) ipv ipv1 ->
+                      GHC.IO.Handle.Text.hPutStr2
+                        h
+                        (GHC.Base.++
+                           @ GHC.Types.Char
+                           Main.clientThread10
+                           (GHC.Show.showList__
+                              @ Main.Peer
+                              Main.$fShowPeer1
+                              ipv1
+                              (GHC.Types.[] @ GHC.Types.Char)))
+                        GHC.Types.True
+                        ipv }
+                   Main.Newtx tx
+                   -> case GHC.Prim.atomically#
+                             @ (GHC.Base.Maybe Main.Tx)
+                             (Main.clientThread8 tx gtxs)
+                             eta1 of ds1 { (#,#) ipv ipv1 ->
+                      case ipv1 of wild1 {
+                        GHC.Base.Nothing
+                        -> case GHC.Prim.atomically#
+                                  @ Main.Peers
+                                  (GHC.Conc.Sync.readTVar1 @ Main.Peers gpeers)
+                                  ipv of ds2 { (#,#) ipv2 ipv3 ->
+                           case ipv3 of wild2 {
+                             [] -> (# ipv2, GHC.Tuple.() #)
+                             : y ys
+                             -> case Main.clientThread7
+                                ret_ty (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+                                of {} } }
+                        GHC.Base.Just newestTxKnown
+                        -> GHC.IO.Handle.Text.hPutStr2
+                             h
+                             (GHC.Base.++
+                                @ GHC.Types.Char
+                                Main.clientThread6
+                                (case newestTxKnown of ww2 { GHC.Types.I# ww3 ->
+                                 case GHC.Show.$wshowSignedInt
+                                        11#
+                                        ww3
+                                        (GHC.Types.:
+                                           @ GHC.Types.Char
+                                           GHC.Show.showSpace1
+                                           (case tx of ww1 { GHC.Types.I# ww5 ->
+                                            case GHC.Show.$wshowSignedInt
+                                                   11#
+                                                   ww5
+                                                   (GHC.Types.[]
+                                                      @ GHC.Types.Char) of ww4 { (#,#) ww6 ww7 ->
+                                            GHC.Types.:
+                                              @ GHC.Types.Char
+                                              ww6
+                                              ww7 } })) of ww4 { (#,#) ww5 ww6 ->
+                                 GHC.Types.: @ GHC.Types.Char ww5 ww6 } }))
+                             GHC.Types.True
+                             ipv } }
+                   Main.Quit
+                   -> case Main.clientThread5
+                      ret_ty (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+                      of {}
+                   Main.Unknown str
+                   -> case GHC.IO.Handle.Text.hPutStr2
+                             GHC.IO.Handle.FD.stdout
+                             Main.clientThread4
+                             GHC.Types.True
+                             eta1 of ds1 { (#,#) ipv ipv1 ->
+                      (# ipv, GHC.Tuple.() #) } }) -}
+f5965f46e875c086f3c6defd16e4cc85
+  clientThread4 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString#
+                   "Error unknown message given"#) -}
+e4fa8f0ac9e00e510c53558b42f4d23c
+  clientThread5 :: GHC.Types.IO ()
+  {- Strictness: x -}
+1adc08fcb15198c28c6791b738f8c92c
+  clientThread6 :: [GHC.Types.Char]
+  {- Unfolding: (GHC.CString.unpackCString# "Oldtx "#) -}
+2a6e1de7ab120d24fceeb80cdeb460dd
+  clientThread7 :: GHC.Types.IO ()
+  {- Strictness: x -}
+a9aadaab86e32cd7672ed574b496787a
+  clientThread8 ::
+    Main.Tx
+    -> GHC.Conc.Sync.TVar Main.Transactions
+    -> GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, GHC.Base.Maybe Main.Tx #)
+  {- Arity: 3, Strictness: <L,1*U(U)><S(S),1*U(U)><S,U>,
+     Inline: INLINE[0],
+     Unfolding: InlineRule (3, True, False)
+                (\ (w :: Main.Tx)
+                   (w1 :: GHC.Conc.Sync.TVar Main.Transactions)
+                   (w2 :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case w1 of ww { GHC.Conc.Sync.TVar ww1 ->
+                 Main.$wprocessNewTx w ww1 w2 }) -}
+29fabd1e3bf7ea2bcb7a58746ee84f15
+  clientThread9 :: GHC.Base.Maybe Main.Tx
+  {- Unfolding: (GHC.Base.Just
+                   @ Main.Tx
+                   (GHC.List.badHead @ Main.Tx)) -}
+7151ecc39afc1fe729888b420e5d349f
+  getNew :: Main.Transactions -> Main.Tx
+  {- Arity: 1, Strictness: <S,1*U>,
+     Unfolding: InlineRule (0, True, True) (GHC.List.head @ Main.Tx) -}
+d05672ffe43cec75cb7255fa7c385463
+  hostName :: Main.Peer -> Network.Socket.HostName
+  RecSel Left Main.Peer
+  {- Arity: 1, HasNoCafRefs, Strictness: <S(SL),1*U(1*U,A)>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (ds :: Main.Peer) ->
+                 case ds of wild { Main.Peer ds1 ds2 -> ds1 }) -}
+f397f28da41263c6b274ba8b129843d5
+  isNew :: Main.Transactions -> Main.Tx -> GHC.Types.Bool
+  {- Arity: 2, HasNoCafRefs, Strictness: <S,1*U><L,1*U(U)>,
+     Unfolding: InlineRule (2, True, False)
+                (\ (ds :: [Main.Tx]) (tx :: Main.Tx) ->
+                 case ds of wild {
+                   [] -> GHC.Types.False : x xs -> GHC.Classes.eqInt tx x }) -}
+d9c0dee8a685c5ed422401aaa63f23bf
+  main :: GHC.Types.IO ()
+  {- Arity: 1, Strictness: <S,U>,
+     Unfolding: InlineRule (0, True, True)
+                Main.main1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R)) -}
+01d62c2c484918d4b5d94b688c90c90e
+  main1 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 1, Strictness: <S,U> -}
+1033d79446b09fbb5ef88af3224e93f4
+  main2 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld, () #)
+  {- Arity: 1,
+     Unfolding: (GHC.TopHandler.runMainIO1
+                   @ ()
+                   Main.main1 `cast` (Sym (GHC.Types.N:IO[0] <()>_R))) -}
+db199ca66fda9a31431adee19d5a231f
+  newPeers :: GHC.Types.IO (GHC.Conc.Sync.TVar Main.Peers)
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,U>,
+     Unfolding: InlineRule (0, True, True)
+                Main.newPeers1
+                  `cast`
+                (Sym (GHC.Types.N:IO[0] <GHC.Conc.Sync.TVar [Main.Peer]>_R)) -}
+4d02ff08e51a26d34ffdf2f720780d0b
+  newPeers1 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld,
+          GHC.Conc.Sync.TVar [Main.Peer] #)
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (s1# :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case GHC.Prim.newTVar#
+                        @ [Main.Peer]
+                        @ GHC.Prim.RealWorld
+                        (GHC.Types.[] @ Main.Peer)
+                        s1# of ds { (#,#) ipv ipv1 ->
+                 (# ipv, GHC.Conc.Sync.TVar @ [Main.Peer] ipv1 #) }) -}
+925befe0516656342284c65216fc69cc
+  newTransactions ::
+    GHC.Types.IO (GHC.Conc.Sync.TVar Main.Transactions)
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,U>,
+     Unfolding: InlineRule (0, True, True)
+                Main.newTransactions1
+                  `cast`
+                (Sym (GHC.Types.N:IO[0] <GHC.Conc.Sync.TVar [Main.Tx]>_R)) -}
+92d4308b22135dee3e94e139ac56a571
+  newTransactions1 ::
+    GHC.Prim.State# GHC.Prim.RealWorld
+    -> (# GHC.Prim.State# GHC.Prim.RealWorld,
+          GHC.Conc.Sync.TVar [Main.Tx] #)
+  {- Arity: 1, HasNoCafRefs, Strictness: <S,U>,
+     Unfolding: InlineRule (1, True, False)
+                (\ (s1# :: GHC.Prim.State# GHC.Prim.RealWorld)[OneShot] ->
+                 case GHC.Prim.newTVar#
+                        @ [Main.Tx]
+                        @ GHC.Prim.RealWorld
+                        (GHC.Types.[] @ Main.Tx)
+                        s1# of ds { (#,#) ipv ipv1 ->
+                 (# ipv, GHC.Conc.Sync.TVar @ [Main.Tx] ipv1 #) }) -}
+931f746084dc5d0fcf8684970e4d7a01
+  port :: Main.Peer -> Network.Socket.Types.PortNumber
+  RecSel Left Main.Peer
+  {- Arity: 1, HasNoCafRefs, Strictness: <S(LS),1*U(A,1*U(U))>m,
+     Unfolding: InlineRule (1, True, False)
+                (\ (ds :: Main.Peer) ->
+                 case ds of wild { Main.Peer ds1 ds2 -> ds2 }) -}
+da9f8564d9dbba16654dc89596c8001e
+  processMessage ::
+    GHC.IO.Handle.Types.Handle
+    -> GHC.Conc.Sync.TVar Main.Peers
+    -> GHC.Conc.Sync.TVar Main.Transactions
+    -> Main.Message
+    -> GHC.Types.IO ()
+  {- Arity: 5, Strictness: <L,U><L,1*U(U)><L,1*U(U)><S,1*U><S,U>,
+     Unfolding: InlineRule (0, True, True)
+                Main.clientThread3
+                  `cast`
+                (<GHC.IO.Handle.Types.Handle>_R
+                 ->_R <GHC.Conc.Sync.TVar Main.Peers>_R
+                 ->_R <GHC.Conc.Sync.TVar Main.Transactions>_R
+                 ->_R <Main.Message>_R
+                 ->_R Sym (GHC.Types.N:IO[0] <()>_R)) -}
+c974dee578a47132b0a6c9620b7b897f
+  processNewTx ::
+    Main.Tx
+    -> GHC.Conc.Sync.TVar Main.Transactions
+    -> GHC.Conc.Sync.STM (GHC.Base.Maybe Main.Tx)
+  {- Arity: 3, Strictness: <L,1*U(U)><S(S),1*U(U)><S,U>,
+     Unfolding: InlineRule (0, True, True)
+                Main.clientThread8
+                  `cast`
+                (<Main.Tx>_R
+                 ->_R <GHC.Conc.Sync.TVar Main.Transactions>_R
+                 ->_R Sym (GHC.Conc.Sync.N:STM[0] <GHC.Base.Maybe Main.Tx>_R)) -}
+ac4e2db4d6d0cbcf3478e2dd4a7309fe
+  randomIntervals ::
+    GHC.Conc.Sync.TVar Main.Peers
+    -> GHC.Conc.Sync.TVar Main.Transactions -> GHC.Types.IO ()
+  {- Arity: 2, Strictness: <B,A><B,A>x,
+     Unfolding: InlineRule (2, True, True)
+                (\ (gpeers :: GHC.Conc.Sync.TVar Main.Peers)
+                   (gtxs :: GHC.Conc.Sync.TVar Main.Transactions) ->
+                 Main.randomIntervals1) -}
+7f80af1a94ea74b6186a44c625271194
+  randomIntervals1 :: GHC.Types.IO ()
+  {- Strictness: x -}
+b55cd02ffac5aad1fd8ab8ed2eb15e88
+  send :: Main.Message -> Main.Peer -> GHC.Types.IO ()
+  {- Arity: 2, Strictness: <B,A><B,1*H>x,
+     Unfolding: InlineRule (2, True, False)
+                (\ (msg :: Main.Message) (ds :: Main.Peer) ->
+                 case ds of wild { Main.Peer ds1 ds2 -> Main.clientThread7 }) -}
+ce575eca8ab991ba964d9e767d2a514b
+  startUpThread ::
+    Network.Socket.HostName -> Network.PortID -> GHC.Types.IO ()
+  {- Arity: 2, Strictness: <B,A><B,A>x,
+     Unfolding: InlineRule (2, True, True)
+                (\ (h :: Network.Socket.HostName) (cport :: Network.PortID) ->
+                 Main.startUpThread1) -}
+baee52c80c9d38c9d6236e8f2d3c2617
+  startUpThread1 :: GHC.Types.IO ()
+  {- Strictness: x -}
+instance GHC.Read.Read [Main.Message] = Main.$fReadMessage
+instance GHC.Read.Read [Main.Peer] = Main.$fReadPeer
+instance GHC.Show.Show [Main.Message] = Main.$fShowMessage
+instance GHC.Show.Show [Main.Peer] = Main.$fShowPeer
+vectorised variables:
+vectorised tycons:
+vectorised reused tycons:
+parallel variables:
+parallel tycons:
+trusted: none
+require own pkg trusted: False
+
