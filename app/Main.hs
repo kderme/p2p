@@ -7,6 +7,7 @@ import Control.Concurrent
 import Control.Concurrent.STM
 import Control.Exception
 import Control.Monad
+import Data.Time
 
 import Network
 import System.IO
@@ -74,38 +75,39 @@ main :: IO ()
 main = do
     gpeers <- newPeers --global Peers TVar
     gtxs <- newTransactions --global Transactions TVar
-    newTransactions 
+    newTransactions
     args <- getArgs
     let port = read $ head args
         seedIp = head $ tail args
         seedPort = read $ head $ tail $ tail args
-    forkIO $ startUpThread seedIp $ PortNumber seedPort 
+        logfile = "txos_log"
+    forkIO $ startUpThread seedIp $ PortNumber seedPort
     forkIO $ randomIntervals gpeers gtxs
     s <- listenOn (PortNumber port)
     putStrLn $ "Listening on port " ++ show port
     forever $ do
         hhp <- accept s
-        forkIO $ clientThread hhp gpeers gtxs --TODO handle failures/exceptions/closed connections etc
+        forkIO $ clientThread hhp gpeers logfile gtxs --TODO handle failures/exceptions/closed connections etc
 
 startUpThread :: HostName -> PortID -> IO ()
-startUpThread h cport = undefined 
+startUpThread h cport = undefined
 --TODO connect to Node to find new peers on startup
 --Send Newtx 0 messages
 
-randomIntervals :: TVar Peers -> TVar Transactions -> IO () 
+randomIntervals :: TVar Peers -> TVar Transactions -> IO ()
 randomIntervals gpeers gtxs = undefined -- TODO wake up every 10s to create new txs
 
-clientThread :: (Handle, HostName, PortNumber) -> TVar Peers -> TVar Transactions -> IO ()
-clientThread (h, chost, cport) peers txs = do 
+clientThread :: (Handle, HostName, PortNumber) -> TVar Peers -> FilePath -> TVar Transactions -> IO ()
+clientThread (h, chost, cport) peers logfile txs = do
     putStrLn $ "Accepted connection from " ++ show chost ++ ":" ++ show cport
     hSetNewlineMode h universalNewlineMode
     hSetBuffering h LineBuffering
     forever $ do
         msg <- hGetLine h
-        processMessage h peers txs $ read msg
+        processMessage h chost peers txs logfile $ read msg
 
-processMessage :: Handle -> TVar Peers -> TVar Transactions -> Message -> IO ()
-processMessage h gpeers gtxs = go
+processMessage :: Handle -> HostName -> TVar Peers -> TVar Transactions -> FilePath -> Message -> IO ()
+processMessage h chost gpeers gtxs logfile = go
   where
     go (Connect host port) = do
         atomically $ modifyTVar' gpeers (\old -> Peer host port:old)
@@ -115,6 +117,8 @@ processMessage h gpeers gtxs = go
         hPutStrLn h $ show $ Status p
     go (Newtx tx) = do
         maybeTx <- atomically $ processNewTx tx gtxs
+        timestamp <- getCurrentTime
+        writeFile logfile ("Tx #: "++show tx++" from "++chost++show timestamp)
         case maybeTx of
             Nothing -> propagateToPeers tx --TODO log
             Just newestTxKnown -> hPutStrLn h $ show $ Oldtx newestTxKnown tx
@@ -122,8 +126,8 @@ processMessage h gpeers gtxs = go
     go (Unknown str) = do
         putStrLn "Error unknown message given"
         return () -- TODO
-    
-    propagateToPeers :: Tx -> IO () 
+
+    propagateToPeers :: Tx -> IO ()
     propagateToPeers tx = do
         peers <- atomically $ readTVar gpeers
         let msg = Newtx tx
