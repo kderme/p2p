@@ -86,6 +86,7 @@ main = do
         seedPort = read $ head $ tail $ tail args
         delay = read $ head $ tail $ tail $ tail args
         logfile = "txos_log"
+        --UGLY STYLING FIX ME NOW
     forkIO $ startUpThread seedIp $ PortNumber seedPort
     forkIO $ randomIntervals gpeers gtxs logfile
     s <- listenOn (PortNumber port)
@@ -140,12 +141,14 @@ processMessage h chost gpeers gtxs logfile delay  = go
         timestamp <- getCurrentTime
         appendFile logfile ("Tx #: " ++ show tx ++ " from " ++ chost ++ " " ++ show timestamp ++ "\n")
         case maybeTx of
-            Nothing -> propagateToPeers tx --TODO log
+            Nothing -> propagateToPeers tx
             Just newestTxKnown -> hPrint h (Oldtx newestTxKnown tx)
-    go Quit = error "Quit Message uniplemented" -- TODO
+    go Quit = do
+        return ()
     go (Unknown str) = do
         putStrLn "Error unknown message given"
-        return () -- TODO
+        return ()
+    go (Oldtx _ _) = return ()
 
     propagateToPeers :: Tx -> IO ()
     propagateToPeers tx = do
@@ -154,7 +157,7 @@ processMessage h chost gpeers gtxs logfile delay  = go
         --putStrLn "I will wait"
         threadDelay(delay*second)
         --putStrLn "I waited"
-        mapM_ (send msg) peers -- TODO Add delays between send
+        mapM_ (send msg) peers
 
 
 send :: Message -> Peer -> IO ()
