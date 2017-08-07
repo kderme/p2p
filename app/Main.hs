@@ -8,7 +8,9 @@ import Control.Monad
 import Data.Time
 import System.Random
 import Network
+import Network.HostName
 import System.IO
+import Data.List
 
 import Lib
 
@@ -18,7 +20,7 @@ data Peer =
     Peer
         { hostName :: HostName
         , port     :: PortNumber
-        } deriving (Show, Read)
+        } deriving (Show, Read,Eq)
 
 type Peers = [Peer]
 type PeersHandle = [(Peer, Handle)]
@@ -105,10 +107,20 @@ main = do
   return ()
 
 
-learnPeers :: GlobalTVars -> HostName -> PortNumber -> IO ThreadId
-learnPeers (GlobalTVars gpeers gtxs) h cport = forkIO go
-    where
-        go = undefined
+learnPeers :: PortNumber -> GlobalTVars -> HostName -> PortNumber -> IO ThreadId
+learnPeers gtv@(GlobalTVars gpeers gtxs) hostName cport = forkIO $ do
+    p <- atomically $ readTVar gpeers
+    let peerList = map fst p
+    if elem (Peer hostName cport) peerList
+    then return () -- TODO
+    else do
+        h <- connectTo hostName $ PortNumber cport
+        atomically $ modifyTVar' gpeers (\old -> (Peer hostName cport,h):old)
+        hPrint h (Connect getHostName 
+
+        
+    
+
 
 listen :: GlobalTVars -> PortNumber -> FilePath -> Int -> IO ThreadId
 listen gtv@(GlobalTVars gpeers gtxs) port logfile delay = forkIO $ do
@@ -135,18 +147,16 @@ randomIntervals gpeers gtxs logfile = forkIO $ forever $ do
     --putStrLn "I am going to send now"
     mapM_ (send (Newtx (recent+offset))) peers
 
-
 run :: GlobalTVars -> Args -> IO ThreadId
 run gtv@(GlobalTVars gpeers gtxs) args = forkIO $ do
     let (port,seedIp,seedPort,delay) = args
         logfile = "txos_log"
-    learnPeers gtv seedIp seedPort
+    learnPeers myPort gtv seedIp seedPort
     randomIntervals gpeers gtxs logfile
     s <- listenOn (PortNumber port)
     putStrLn $ "Listening on port " ++ show port
 --TODO connect to Node to find new peers on startup
 --Send Newtx 0 messages
-
 
 clientThread :: GlobalTVars -> (Handle, HostName, PortNumber) ->  FilePath -> Int -> IO ()
 clientThread gtv@(GlobalTVars gpeers gtxs) (h, chost, cport)  logfile delay = do
@@ -188,7 +198,6 @@ processMessage h chost gtv@(GlobalTVars gpeers gtxs) logfile delay = go
         let msg = Newtx tx
         threadDelay(delay*second)
         mapM_ (send msg) peers
-
 
 send :: Message -> (Peer,Handle) -> IO ()
 send msg (_,h) = hPrint h msg  --TODO use chans for each peer (add to record) . Else just open a new connection
