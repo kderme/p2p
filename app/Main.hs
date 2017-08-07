@@ -108,24 +108,29 @@ main = do
 
 
 learnPeers :: PortNumber -> GlobalTVars -> HostName -> PortNumber -> IO ThreadId
-learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostName cport = forkIO $ go 10
+learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostName cport = forkIO $ go 10 []
     where
-        go 0 = return ()
-        go n = do
-            p <- atomically $ readTVar gpeers
-            let peerList = map fst p
-            if Peer hostName cport `elem` peerList
-            then return () -- TODO
-            else do
-                h <- connectTo hostName $ PortNumber cport
-                atomically $ modifyTVar' gpeers (\old -> (Peer hostName cport,h):old)
-                myhost <- HH.getHostName
-                hPrint h (Connect myhost myport)
-                hPrint h GetPeers
-                answer <- hGetLine h
-                let Status p = read answer
-                return ()
-                go (n-1)
+        go n possible_conn
+        | n < 0     = possible_conn -- = return ()
+        | otherwise = do
+--            p <- atomically $ readTVar gpeers
+--            let peerList = map fst p
+            --if Peer hostName cport `elem` peerList
+            --then return () -- TODO
+            --else do
+            h <- connectTo hostName $ PortNumber cport
+            --atomically $ modifyTVar' gpeers (\old -> (Peer hostName cport,h):old)
+            myhost <- HH.getHostName
+    --                hPrint h (Connect myhost myport)
+            hPrint h GetPeers
+            answer <- hGetLine h
+            let res = case read answer of
+                Status p -> possible_conn ++ p
+                GetPeers -> hPrint h (Status (map fst p))
+                
+    --              let Status p = read answer
+--            return ()
+            go (n - length possible_conn) possible_conn
 
 
 listen :: GlobalTVars -> PortNumber -> FilePath -> Int -> IO ThreadId
@@ -176,6 +181,7 @@ clientThread gtv@(GlobalTVars gpeers gtxs) (h, chost, cport)  logfile delay = do
 processMessage :: Handle -> HostName -> GlobalTVars -> FilePath -> Int -> Message -> IO ()
 processMessage h chost gtv@(GlobalTVars gpeers gtxs) logfile delay = go
   where
+    go (Status eers) = do
     go (Connect host port) = do
         atomically $ modifyTVar' gpeers (\old -> (Peer host port,h):old)
         return ()
@@ -207,4 +213,3 @@ processMessage h chost gtv@(GlobalTVars gpeers gtxs) logfile delay = go
 
 send :: Message -> (Peer,Handle) -> IO ()
 send msg (_,h) = hPrint h msg  --TODO use chans for each peer (add to record) . Else just open a new connection
-
