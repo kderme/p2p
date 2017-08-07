@@ -1,5 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module Main where
 
 import System.Environment
@@ -40,11 +38,11 @@ data Message =
     | Unknown String
     deriving (Read, Show)
 
-data GlobalTVars = 
+data GlobalTVars =
     GlobalTVars
         { gpeers :: TVar PeersHandle
         , gtxs   :: TVar Transactions
-        } 
+        }
 
 -- Transactions Interface --
 
@@ -82,7 +80,7 @@ second = 1000000
 
 type Args = (PortNumber,HostName,PortNumber,Int)
 
-data InterMsg = 
+data InterMsg =
     Run Args
     | Listen PortNumber Int
     | LearnPeers HostName PortNumber
@@ -98,18 +96,18 @@ main = do
   forever $ do
       line <- getLine
       let command = read line
-      case command of 
-          Run args    -> run gtv args >> return ()
-          Listen port delay -> listen gtv port "log_txos" delay >> return ()
-          LearnPeers hostName port -> learnPeers gtv hostName port >> return ()
-          ShowPeers    -> (atomically (readTVar gpeers)) >>= print
-          ShowTxs    -> (atomically (readTVar gtxs)) >>= print
+      case command of
+          Run args    -> void $ run gtv args
+          Listen port delay -> void $ listen gtv port "log_txos" delay
+          LearnPeers hostName port -> void $ learnPeers gtv hostName port
+          ShowPeers    -> atomically (readTVar gpeers) >>= print
+          ShowTxs    -> atomically (readTVar gtxs) >>= print
   return ()
-          
+
 
 learnPeers :: GlobalTVars -> HostName -> PortNumber -> IO ThreadId
-learnPeers (GlobalTVars gpeers gtxs) h cport = forkIO go 
-    where 
+learnPeers (GlobalTVars gpeers gtxs) h cport = forkIO go
+    where
         go = undefined
 
 listen :: GlobalTVars -> PortNumber -> FilePath -> Int -> IO ThreadId
@@ -120,7 +118,7 @@ listen gtv@(GlobalTVars gpeers gtxs) port logfile delay = forkIO $ do
         forkIO $ clientThread gtv hhp logfile delay
 --TODO handle failures/exceptions/closed connections etc
 
-randomIntervals :: TVar Peers -> TVar Transactions -> FilePath -> IO ThreadId
+randomIntervals :: TVar PeersHandle -> TVar Transactions -> FilePath -> IO ThreadId
 randomIntervals gpeers gtxs logfile = forkIO $ forever $ do
     interval <- randomRIO(10,120)
     print interval
@@ -139,16 +137,13 @@ randomIntervals gpeers gtxs logfile = forkIO $ forever $ do
 
 
 run :: GlobalTVars -> Args -> IO ThreadId
-run gtv@(GlobalTVars gpeers gtxs) args = undefined
-{-
-forkIO $ do
+run gtv@(GlobalTVars gpeers gtxs) args = forkIO $ do
     let (port,seedIp,seedPort,delay) = args
-        logfile = "txos_log"        
-    learnPeers gtv seedip $ PortNumber seedPort
+        logfile = "txos_log"
+    learnPeers gtv seedIp seedPort
     randomIntervals gpeers gtxs logfile
     s <- listenOn (PortNumber port)
     putStrLn $ "Listening on port " ++ show port
--}
 --TODO connect to Node to find new peers on startup
 --Send Newtx 0 messages
 
@@ -188,17 +183,13 @@ processMessage h chost gtv@(GlobalTVars gpeers gtxs) logfile delay = go
     go (Oldtx _ _) = return ()
 
     propagateToPeers :: Tx -> IO ()
-    propagateToPeers tx = undefined
-{-
-
-do
+    propagateToPeers tx = do
         peers <- atomically $ readTVar gpeers
         let msg = Newtx tx
-        --putStrLn "I will wait"
         threadDelay(delay*second)
-        --putStrLn "I waited"
         mapM_ (send msg) peers
--}
 
-send :: Message -> Peer -> IO ()
-send msg Peer{..} = error "send is not implemented yet" --TODO use chans for each peer (add to record) . Else just open a new connection
+
+send :: Message -> (Peer,Handle) -> IO ()
+send msg (_,h) = hPrint h msg  --TODO use chans for each peer (add to record) . Else just open a new connection
+
