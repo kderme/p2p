@@ -20,12 +20,12 @@ data Peer =
     Peer
         { hostName :: HostName
         , port     :: PortNumber
-        }
-    deriving (Read, Show)
+        } deriving (Show, Read)
 
 type Peers = [Peer]
+type PeersHandle = [(Peer, Handle)]
 
-newPeers :: IO (TVar Peers)
+newPeers :: IO (TVar PeersHandle)
 newPeers = newTVarIO []
 
 -- End of Peer interface --
@@ -40,18 +40,23 @@ data Message =
     | Unknown String
     deriving (Read, Show)
 
+data GlobalTVars = 
+    GlobalTVars
+        { gpeers :: TVar PeersHandle
+        , gtxs   :: TVar Transactions
+        } 
+
 -- Transactions Interface --
 
 type Tx = Int
 type Transactions = [Tx]
+type Port = Int
 newTransactions :: IO (TVar Transactions)
 newTransactions = newTVarIO []
 
 isNew :: Transactions -> Tx -> Bool
 isNew [] tx = True
-isNew (x:xs) tx
-    | tx > x    = True
-    | otherwise = False
+isNew (x:xs) tx = tx > x
 
 getNew :: Transactions -> Tx
 getNew = head
@@ -75,33 +80,48 @@ processNewTx newtx txs' = do
 second :: Int
 second = 1000000
 
+type Args = (PortNumber,HostName,PortNumber,Int)
+
+data InterMsg = 
+    Run Args
+    | Listen PortNumber Int
+    | LearnPeers HostName PortNumber
+    | ShowTxs
+    | ShowPeers
+    deriving (Show, Read)
+
 main :: IO ()
 main = do
-    gpeers <- newPeers --global Peers TVar
-    gtxs <- newTransactions --global Transactions TVar
-    newTransactions
-    args <- getArgs
-    let port = read $ head args
-        seedIp = head $ tail args
-        seedPort = read $ head $ tail $ tail args
-        delay = read $ head $ tail $ tail $ tail args
-        logfile = "txos_log"
-        --UGLY STYLING FIX ME NOW
-    forkIO $ startUpThread seedIp $ PortNumber seedPort
-    forkIO $ randomIntervals gpeers gtxs logfile
-    s <- listenOn (PortNumber port)
-    putStrLn $ "Listening on port " ++ show port
+  gpeers <- newPeers --global Peers TVar
+  gtxs <- newTransactions --global Transactions TVar
+  let gtv = GlobalTVars gpeers gtxs
+  forever $ do
+      line <- getLine
+      let command = read line
+      case command of 
+          Run args    -> run gtv args >> return ()
+          Listen port delay -> listen gtv port "log_txos" delay >> return ()
+          LearnPeers hostName port -> learnPeers gtv hostName port >> return ()
+          ShowPeers    -> (atomically (readTVar gpeers)) >>= print
+          ShowTxs    -> (atomically (readTVar gtxs)) >>= print
+  return ()
+          
+
+learnPeers :: GlobalTVars -> HostName -> PortNumber -> IO ThreadId
+learnPeers (GlobalTVars gpeers gtxs) h cport = forkIO go 
+    where 
+        go = undefined
+
+listen :: GlobalTVars -> PortNumber -> FilePath -> Int -> IO ThreadId
+listen gtv@(GlobalTVars gpeers gtxs) port logfile delay = forkIO $ do
+    s   <- listenOn (PortNumber port)
     forever $ do
         hhp <- accept s
-        forkIO $ clientThread hhp gpeers logfile delay gtxs --TODO handle failures/exceptions/closed connections etc
+        forkIO $ clientThread gtv hhp logfile delay
+--TODO handle failures/exceptions/closed connections etc
 
-startUpThread :: HostName -> PortID -> IO ()
-startUpThread h cport = undefined
---TODO connect to Node to find new peers on startup
---Send Newtx 0 messages
-
-randomIntervals :: TVar Peers -> TVar Transactions -> FilePath -> IO ()
-randomIntervals gpeers gtxs logfile = forever $ do
+randomIntervals :: TVar Peers -> TVar Transactions -> FilePath -> IO ThreadId
+randomIntervals gpeers gtxs logfile = forkIO $ forever $ do
     interval <- randomRIO(10,120)
     print interval
     threadDelay (interval*second)
@@ -118,24 +138,39 @@ randomIntervals gpeers gtxs logfile = forever $ do
     mapM_ (send (Newtx (recent+offset))) peers
 
 
-clientThread :: (Handle, HostName, PortNumber) -> TVar Peers -> FilePath -> Int -> TVar Transactions -> IO ()
-clientThread (h, chost, cport) peers logfile delay txs = do
+run :: GlobalTVars -> Args -> IO ThreadId
+run gtv@(GlobalTVars gpeers gtxs) args = undefined
+{-
+forkIO $ do
+    let (port,seedIp,seedPort,delay) = args
+        logfile = "txos_log"        
+    learnPeers gtv seedip $ PortNumber seedPort
+    randomIntervals gpeers gtxs logfile
+    s <- listenOn (PortNumber port)
+    putStrLn $ "Listening on port " ++ show port
+-}
+--TODO connect to Node to find new peers on startup
+--Send Newtx 0 messages
+
+
+clientThread :: GlobalTVars -> (Handle, HostName, PortNumber) ->  FilePath -> Int -> IO ()
+clientThread gtv@(GlobalTVars gpeers gtxs) (h, chost, cport)  logfile delay = do
     putStrLn $ "Accepted connection from " ++ show chost ++ ":" ++ show cport
     hSetNewlineMode h universalNewlineMode
     hSetBuffering h LineBuffering
     forever $ do
         msg <- hGetLine h
-        processMessage h chost peers txs logfile delay (read msg)
+        processMessage h chost gtv logfile delay (read msg)
 
-processMessage :: Handle -> HostName -> TVar Peers -> TVar Transactions -> FilePath -> Int -> Message -> IO ()
-processMessage h chost gpeers gtxs logfile delay  = go
+processMessage :: Handle -> HostName -> GlobalTVars -> FilePath -> Int -> Message -> IO ()
+processMessage h chost gtv@(GlobalTVars gpeers gtxs) logfile delay = go
   where
     go (Connect host port) = do
-        atomically $ modifyTVar' gpeers (\old -> Peer host port:old)
+        atomically $ modifyTVar' gpeers (\old -> (Peer host port,h):old)
         return ()
     go GetPeers = do
         p <- atomically $ readTVar gpeers -- ?
-        hPrint h (Status p)
+        hPrint h (Status (map fst p))
     go (Newtx tx) = do
         maybeTx <- atomically $ processNewTx tx gtxs
         timestamp <- getCurrentTime
@@ -153,14 +188,17 @@ processMessage h chost gpeers gtxs logfile delay  = go
     go (Oldtx _ _) = return ()
 
     propagateToPeers :: Tx -> IO ()
-    propagateToPeers tx = do
+    propagateToPeers tx = undefined
+{-
+
+do
         peers <- atomically $ readTVar gpeers
         let msg = Newtx tx
         --putStrLn "I will wait"
         threadDelay(delay*second)
         --putStrLn "I waited"
         mapM_ (send msg) peers
-
+-}
 
 send :: Message -> Peer -> IO ()
 send msg Peer{..} = error "send is not implemented yet" --TODO use chans for each peer (add to record) . Else just open a new connection
