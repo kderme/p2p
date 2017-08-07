@@ -8,7 +8,7 @@ import Control.Monad
 import Data.Time
 import System.Random
 import Network
-import Network.HostName
+import qualified Network.HostName as HH
 import System.IO
 import Data.List
 
@@ -85,7 +85,7 @@ type Args = (PortNumber,HostName,PortNumber,Int)
 data InterMsg =
     Run Args
     | Listen PortNumber Int
-    | LearnPeers HostName PortNumber
+    | LearnPeers PortNumber HostName PortNumber
     | ShowTxs
     | ShowPeers
     deriving (Show, Read)
@@ -101,25 +101,31 @@ main = do
       case command of
           Run args    -> void $ run gtv args
           Listen port delay -> void $ listen gtv port "log_txos" delay
-          LearnPeers hostName port -> void $ learnPeers gtv hostName port
+          LearnPeers myport hostName port -> void $ learnPeers myport gtv hostName port
           ShowPeers    -> atomically (readTVar gpeers) >>= print
           ShowTxs    -> atomically (readTVar gtxs) >>= print
   return ()
 
 
 learnPeers :: PortNumber -> GlobalTVars -> HostName -> PortNumber -> IO ThreadId
-learnPeers gtv@(GlobalTVars gpeers gtxs) hostName cport = forkIO $ do
-    p <- atomically $ readTVar gpeers
-    let peerList = map fst p
-    if elem (Peer hostName cport) peerList
-    then return () -- TODO
-    else do
-        h <- connectTo hostName $ PortNumber cport
-        atomically $ modifyTVar' gpeers (\old -> (Peer hostName cport,h):old)
-        hPrint h (Connect getHostName 
-
-        
-    
+learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostName cport = forkIO $ go 10
+    where
+        go 0 = return ()
+        go n = do
+            p <- atomically $ readTVar gpeers
+            let peerList = map fst p
+            if Peer hostName cport `elem` peerList
+            then return () -- TODO
+            else do
+                h <- connectTo hostName $ PortNumber cport
+                atomically $ modifyTVar' gpeers (\old -> (Peer hostName cport,h):old)
+                myhost <- HH.getHostName
+                hPrint h (Connect myhost myport)
+                hPrint h GetPeers
+                answer <- hGetLine h
+                let Status p = read answer
+                return ()
+                go (n-1)
 
 
 listen :: GlobalTVars -> PortNumber -> FilePath -> Int -> IO ThreadId
@@ -151,7 +157,7 @@ run :: GlobalTVars -> Args -> IO ThreadId
 run gtv@(GlobalTVars gpeers gtxs) args = forkIO $ do
     let (port,seedIp,seedPort,delay) = args
         logfile = "txos_log"
-    learnPeers myPort gtv seedIp seedPort
+    learnPeers port gtv seedIp seedPort
     randomIntervals gpeers gtxs logfile
     s <- listenOn (PortNumber port)
     putStrLn $ "Listening on port " ++ show port
