@@ -110,7 +110,7 @@ main = do
 learnPeers :: PortNumber -> GlobalTVars -> HostName -> PortNumber -> IO ()
 learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostname cport = do
     l <- go 10 [] hostname cport
-    let l3 = take 3 l
+    let l3 = take (min 3 (length l)) l
     mapM (\(Peer host port) -> connectToPeer myport port host gtv) l3 --TODO styling
     return ()
     where
@@ -122,12 +122,15 @@ learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostname cport = do
                 hPrint h GetPeers
                 answer <- hGetLine h
                 let Status p = read answer
-                let (Peer nexthost nextport) = head p
-                hClose h
-                go (n-length p) (possible_conn ++ p) nexthost nextport
+                if null p 
+                then return [Peer hostname cport]
+                else do 
+                    let (Peer nexthost nextport) = head p
+                    hClose h
+                    go (n-length p) (possible_conn ++ p) nexthost nextport
 
-connectToPeer :: PortNumber -> PortNumber -> HostName -> GlobalTVars -> IO ()
-connectToPeer myPort cport hostname gtv@(GlobalTVars gpeers gtxs) = do
+connectToPeer :: PortNumber -> PortNumber -> HostName -> GlobalTVars -> IO ThreadId
+connectToPeer myPort cport hostname gtv@(GlobalTVars gpeers gtxs) = forkIO $ do
     putStrLn $ "[" ++ show myPort ++ "] connecting to peer"
     h <- connectTo hostname $ PortNumber cport
     atomically $ modifyTVar' gpeers (\old -> (Peer hostname cport,h):old)
