@@ -1,18 +1,18 @@
 module Main where
 
-import System.Environment
-import Control.Concurrent
-import Control.Concurrent.STM
-import Control.Exception
-import Control.Monad
-import Data.Time
-import System.Random
-import Network
-import qualified Network.HostName as HH
-import System.IO
-import Data.List
+import           Control.Concurrent
+import           Control.Concurrent.STM
+import           Control.Exception
+import           Control.Monad
+import           Data.List
+import           Data.Time
+import           Network
+import qualified Network.HostName       as HH
+import           System.Environment
+import           System.IO
+import           System.Random
 
-import Lib
+import           Lib
 
 -- Peer interface --
 
@@ -55,7 +55,7 @@ newTransactions :: IO (TVar Transactions)
 newTransactions = newTVarIO []
 
 isNew :: Transactions -> Tx -> Bool
-isNew [] tx = True
+isNew [] tx     = True
 isNew (x:xs) tx = tx > x
 
 getNew :: Transactions -> Tx
@@ -107,30 +107,26 @@ main = do
   return ()
 
 
-learnPeers :: PortNumber -> GlobalTVars -> HostName -> PortNumber -> IO ThreadId
-learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostName cport = forkIO $ go 10 []
+learnPeers :: PortNumber -> GlobalTVars -> HostName -> PortNumber -> IO ()
+learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostName cport = do
+    l <- go 10 [] hostName cport
+    first <- RandomRIO(1,10)
+    second <- RandomRIO(1,10)
+    third <- RandomRIO(1,10)
+
+    return ()
     where
-        go n possible_conn
-        | n < 0     = possible_conn -- = return ()
-        | otherwise = do
---            p <- atomically $ readTVar gpeers
---            let peerList = map fst p
-            --if Peer hostName cport `elem` peerList
-            --then return () -- TODO
-            --else do
-            h <- connectTo hostName $ PortNumber cport
-            --atomically $ modifyTVar' gpeers (\old -> (Peer hostName cport,h):old)
-            myhost <- HH.getHostName
-    --                hPrint h (Connect myhost myport)
-            hPrint h GetPeers
-            answer <- hGetLine h
-            let res = case read answer of
-                Status p -> possible_conn ++ p
-                GetPeers -> hPrint h (Status (map fst p))
-                
-    --              let Status p = read answer
---            return ()
-            go (n - length possible_conn) possible_conn
+        go n possible_conn hostName cport
+            | n < 0     = return possible_conn
+            | otherwise = do
+                h <- connectTo hostName $ PortNumber cport
+                myhost <- HH.getHostName
+                hPrint h GetPeers
+                answer <- hGetLine h
+                let Status p = read answer
+                let (Peer nexthost nextport) = head p
+                hClose h
+                go (n-length p) (possible_conn ++ p) nexthost nextport
 
 
 listen :: GlobalTVars -> PortNumber -> FilePath -> Int -> IO ThreadId
@@ -181,7 +177,7 @@ clientThread gtv@(GlobalTVars gpeers gtxs) (h, chost, cport)  logfile delay = do
 processMessage :: Handle -> HostName -> GlobalTVars -> FilePath -> Int -> Message -> IO ()
 processMessage h chost gtv@(GlobalTVars gpeers gtxs) logfile delay = go
   where
-    go (Status eers) = do
+    go (Status peers) = undefined
     go (Connect host port) = do
         atomically $ modifyTVar' gpeers (\old -> (Peer host port,h):old)
         return ()
@@ -193,7 +189,7 @@ processMessage h chost gtv@(GlobalTVars gpeers gtxs) logfile delay = go
         timestamp <- getCurrentTime
         appendFile logfile ("Tx #: " ++ show tx ++ " from " ++ chost ++ " " ++ show timestamp ++ "\n")
         case maybeTx of
-            Nothing -> propagateToPeers tx
+            Nothing            -> propagateToPeers tx
             Just newestTxKnown -> hPrint h (Oldtx newestTxKnown tx)
     go Quit = do
         hClose h
