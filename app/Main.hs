@@ -101,25 +101,23 @@ main = do
       case command of
           Run args    -> void $ run gtv args
           Listen port delay -> void $ listen gtv port "log_txos" delay
-          LearnPeers myport hostName port -> void $ learnPeers myport gtv hostName port
+          LearnPeers myport hostname port -> void $ learnPeers myport gtv hostname port
           ShowPeers    -> atomically (readTVar gpeers) >>= print
           ShowTxs    -> atomically (readTVar gtxs) >>= print
   return ()
 
 
 learnPeers :: PortNumber -> GlobalTVars -> HostName -> PortNumber -> IO ()
-learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostName cport = do
-    l <- go 10 [] hostName cport
-    first <- RandomRIO(1,10)
-    second <- RandomRIO(1,10)
-    third <- RandomRIO(1,10)
-
+learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostname cport = do
+    l <- go 10 [] hostname cport
+    let l3 = take 3 l
+    mapM (\(Peer host port) -> connectToPeer myport port host gtv) l3 --TODO styling
     return ()
     where
-        go n possible_conn hostName cport
+        go n possible_conn hostname cport
             | n < 0     = return possible_conn
             | otherwise = do
-                h <- connectTo hostName $ PortNumber cport
+                h <- connectTo hostname $ PortNumber cport
                 myhost <- HH.getHostName
                 hPrint h GetPeers
                 answer <- hGetLine h
@@ -128,9 +126,18 @@ learnPeers myport gtv@(GlobalTVars gpeers gtxs) hostName cport = do
                 hClose h
                 go (n-length p) (possible_conn ++ p) nexthost nextport
 
+connectToPeer :: PortNumber -> PortNumber -> HostName -> GlobalTVars -> IO ()
+connectToPeer myPort cport hostname gtv@(GlobalTVars gpeers gtxs) = do
+    putStrLn $ "[" ++ show myPort ++ "] connecting to peer"
+    h <- connectTo hostname $ PortNumber cport
+    atomically $ modifyTVar' gpeers (\old -> (Peer hostname cport,h):old)
+    myHostName <- HH.getHostName
+    hPrint h $ Connect myHostName myPort 
 
 listen :: GlobalTVars -> PortNumber -> FilePath -> Int -> IO ThreadId
 listen gtv@(GlobalTVars gpeers gtxs) port logfile delay = forkIO $ do
+    putStrLn $ "[" ++ show port ++ "] listening" 
+    putStrLn "listening" 
     s   <- listenOn (PortNumber port)
     forever $ do
         hhp <- accept s
@@ -139,6 +146,7 @@ listen gtv@(GlobalTVars gpeers gtxs) port logfile delay = forkIO $ do
 
 randomIntervals :: TVar PeersHandle -> TVar Transactions -> FilePath -> IO ThreadId
 randomIntervals gpeers gtxs logfile = forkIO $ forever $ do
+--    putStrLn $ "[" ++ show myPort ++ "] random Intervals"
     interval <- randomRIO(10,120)
     print interval
     threadDelay (interval*second)
@@ -157,7 +165,8 @@ randomIntervals gpeers gtxs logfile = forkIO $ forever $ do
 run :: GlobalTVars -> Args -> IO ThreadId
 run gtv@(GlobalTVars gpeers gtxs) args = forkIO $ do
     let (port,seedIp,seedPort,delay) = args
-        logfile = "txos_log"
+        logfile = "txos_log"   
+    listen gtv port logfile delay 
     learnPeers port gtv seedIp seedPort
     randomIntervals gpeers gtxs logfile
     s <- listenOn (PortNumber port)
