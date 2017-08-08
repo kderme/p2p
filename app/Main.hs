@@ -6,6 +6,7 @@ import           Control.Exception
 import           Control.Monad
 import           Data.List
 import           Data.Time
+import qualified Data.Map as M
 import           Network
 import qualified Network.HostName       as HH
 import           System.Environment
@@ -20,13 +21,13 @@ data Peer =
     Peer
         { hostName :: HostName
         , port     :: PortNumber
-        } deriving (Show, Read,Eq)
+        } deriving (Show, Read,Eq,Ord)
 
 type Peers = [Peer]
-type PeersHandle = [(Peer, Handle)]
+type PeersHandle = M.Map Peer Handle -- [(Peer, Handle)]
 
 newPeers :: IO (TVar PeersHandle)
-newPeers = newTVarIO []
+newPeers = newTVarIO M.empty
 
 -- End of Peer interface --
 
@@ -133,8 +134,8 @@ connectToPeer :: PortNumber -> PortNumber -> HostName -> GlobalTVars -> IO Threa
 connectToPeer myPort cport hostname gtv@(GlobalTVars gpeers gtxs) = forkIO $ do
     putStrLn $ "[" ++ show myPort ++ "] connecting to peer"
     h <- connectTo hostname $ PortNumber cport
-    atomically $ modifyTVar' gpeers (\old -> (Peer hostname cport,h):old)
     myHostName <- HH.getHostName
+    atomically $ modifyTVar' gpeers $ M.insert (Peer hostname cport) h
     hPrint h $ Connect myHostName myPort 
 
 listen :: GlobalTVars -> PortNumber -> FilePath -> Int -> IO ThreadId
@@ -163,7 +164,7 @@ randomIntervals gpeers gtxs logfile = forkIO $ forever $ do
     timestamp <- getCurrentTime
     appendFile logfile ("Tx #: " ++ show (recent+offset) ++ " from me" ++ " " ++ show timestamp ++ "\n")
     --putStrLn "I am going to send now"
-    mapM_ (send (Newtx (recent+offset))) peers
+    mapM_ (send (Newtx (recent+offset))) $ M.toList peers
 
 run :: GlobalTVars -> Args -> IO ThreadId
 run gtv@(GlobalTVars gpeers gtxs) args = forkIO $ do
@@ -190,12 +191,12 @@ processMessage :: Handle -> HostName -> GlobalTVars -> FilePath -> Int -> Messag
 processMessage h chost gtv@(GlobalTVars gpeers gtxs) logfile delay = go
   where
     go (Status peers) = undefined
-    go (Connect host port) = do
-        atomically $ modifyTVar' gpeers (\old -> (Peer host port,h):old)
+    go (Connect hostname port) = do
+        atomically $ modifyTVar' gpeers $ M.insert (Peer hostname port) h
         return ()
     go GetPeers = do
-        p <- atomically $ readTVar gpeers -- ?
-        hPrint h (Status (map fst p))
+        peers <- atomically $ readTVar gpeers -- ?
+        hPrint h (Status (M.keys peers))
     go (Newtx tx) = do
         maybeTx <- atomically $ processNewTx tx gtxs
         timestamp <- getCurrentTime
@@ -210,14 +211,14 @@ processMessage h chost gtv@(GlobalTVars gpeers gtxs) logfile delay = go
     go (Unknown str) = do
         putStrLn "Error unknown message given"
         return ()
-    go (Oldtx _ _) = return ()
+    go (Oldtx newtx _) = undefined
 
     propagateToPeers :: Tx -> IO ()
     propagateToPeers tx = do
         peers <- atomically $ readTVar gpeers
         let msg = Newtx tx
         threadDelay(delay*second)
-        mapM_ (send msg) peers
+        mapM_ (send msg) $ M.toList peers
 
 send :: Message -> (Peer,Handle) -> IO ()
 send msg (_,h) = hPrint h msg  --TODO use chans for each peer (add to record) . Else just open a new connection
