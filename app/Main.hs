@@ -40,10 +40,13 @@ data GlobalData =
         , logfile      :: FilePath
         , logMessages  :: FilePath
         , delay        :: TVar Int
+        , gpeers       :: TVar PeersHandle
+        , gtxs         :: TVar Transactions
         }
 
-newGlobalData :: HostName -> PortNumber -> Int -> IO GlobalData
-newGlobalData host port delay = do
+
+newGlobalData :: HostName -> PortNumber -> Int -> TVar PeersHandle -> TVar Transactions-> IO GlobalData
+newGlobalData host port delay gpeers gtxs = do
   let logpath = "logging/" ++ show port
   bl <- doesPathExist logpath
   if bl
@@ -56,7 +59,7 @@ newGlobalData host port delay = do
     log = logpath ++ "/txs"
     logm = logpath ++ "/messages"
   del <- newTVarIO delay
-  return $ GlobalData host port log logm del
+  return $ GlobalData host port log logm del gpeers gtxs
 
 {-
 newDefaultGlobalData :: IO GlobalData
@@ -72,12 +75,6 @@ data Message =
     | Quit
     | Unknown String
     deriving (Read, Show)
-
-data GlobalTVars =
-    GlobalTVars
-        { gpeers :: TVar PeersHandle
-        , gtxs   :: TVar Transactions
-        }
 
 -- Transactions Interface --
 
@@ -136,39 +133,37 @@ main = do
     let myHostName = if length args <5 then "127.0.0.1" else args !! 4
     gpeers <- newPeers --global Peers TVar
     gtxs <- newTransactions --global Transactions TVar
-    gdata <- newGlobalData myHostName myPort delay
-    let gtv = GlobalTVars gpeers gtxs
-    interactive gdata seedHostName seedPort gtv
+    gdata <- newGlobalData myHostName myPort delay gpeers gtxs
+    interactive gdata seedHostName seedPort
 
-interactive:: GlobalData -> HostName -> PortNumber -> GlobalTVars -> IO ()
-interactive gdata@GlobalData{..} seedHostName seedPortName gtv@GlobalTVars{..} =
+interactive:: GlobalData -> HostName -> PortNumber -> IO ()
+interactive gdata@GlobalData{..} seedHostName seedPortName =
     forever $ do
         line <- getLine
         let command = read line
         case command of
-            Run                    -> void $ forkIO $ run gdata seedHostName seedPortName gtv
---          Listen                 -> void $ forkIO $ listen myPort "log_txos" delay gtv
-            LearnPeers host port n -> void $ forkIO $ learnPeers gdata host port n gtv
+            Run                    -> void $ forkIO $ run gdata seedHostName seedPortName
+            LearnPeers host port n -> void $ forkIO $ learnPeers gdata host port n
             ShowPeers              -> atomically (readTVar gpeers) >>= print
             ShowTxs                -> atomically (readTVar gtxs) >>= print
-            Send host port msg     -> void $ forkIO $ sendIfPeer gdata host port msg gtv
+            Send host port msg     -> void $ forkIO $ sendIfPeer gdata host port msg
             SetDelay val           -> atomically $ writeTVar delay val
             _                      -> putStrLn "Command not defined yet"
 --    return ()
 
-sendIfPeer :: GlobalData -> HostName -> PortNumber -> Message -> GlobalTVars -> IO ()
-sendIfPeer gdata@GlobalData{..} host port msg gtv@GlobalTVars{..} = do
+sendIfPeer :: GlobalData -> HostName -> PortNumber -> Message  -> IO ()
+sendIfPeer gdata@GlobalData{..} host port msg = do
   peers <- atomically $ readTVar gpeers
   let p = Peer host port
   case M.lookup p peers of
     Just h  -> sendP gdata msg (p, h)
     Nothing -> return ()
 
-learnPeers :: GlobalData -> HostName -> PortNumber -> Int -> GlobalTVars -> IO ()
-learnPeers gdata@GlobalData{..} seedHostName seedPort num gtv@GlobalTVars{..} = do
+learnPeers :: GlobalData -> HostName -> PortNumber -> Int -> IO ()
+learnPeers gdata@GlobalData{..} seedHostName seedPort num = do
     l <- go (3*num+1) [] seedHostName seedPort -- for num==3, 3n+1==10 .
     let l3 = take (min num (length l)) l
-    mapM_ (\(Peer host port) -> forkIO (connectToPeer gdata seedPort seedHostName gtv)) l3 --TODO styling
+    mapM_ (\(Peer host port) -> forkIO (connectToPeer gdata seedPort seedHostName)) l3 --TODO styling
     return ()
     where
         go n possible_conn hostname cport
@@ -190,29 +185,29 @@ learnPeers gdata@GlobalData{..} seedHostName seedPort num gtv@GlobalTVars{..} = 
                             hClose h
                             go (n-length p) (possible_conn ++ p) nexthost nextport
 
-connectToPeer :: GlobalData -> PortNumber -> HostName -> GlobalTVars -> IO ()
-connectToPeer gdata@GlobalData{..} port hostname gtv@GlobalTVars{..} = do
+connectToPeer :: GlobalData -> PortNumber -> HostName -> IO ()
+connectToPeer gdata@GlobalData{..} port hostname = do
     putStrLn $ "[" ++ show myPort ++ "] connecting to peer"
     h <- connectTo hostname $ PortNumber port
     atomically $ modifyTVar' gpeers $ M.insert (Peer hostname port) h
     send gdata (Connect myHostName myPort) h
 
-listen :: GlobalData -> GlobalTVars -> IO ()
-listen gdata@GlobalData{..} gtv@GlobalTVars{..} = do
+listen :: GlobalData -> IO ()
+listen gdata@GlobalData{..} = do
     putStrLn $ "[" ++ show myPort ++ "] listening"
     putStrLn "listening"
     s   <- listenOn (PortNumber myPort)
     forever $ do
         (h, hname, p) <- accept s
-        forkFinally (clientThread gdata (h, hname, p) gtv) (const $ putStrLn "clientThread error")
+        forkFinally (clientThread gdata (h, hname, p)) (const $ putStrLn "clientThread error")
         --find PeerToDelete from PeersHandle and then
         --atomically $ modifyTVar' gpeers $ M.delete PeerToDelete
         --TODO handle failures/exceptions/closed connections etc
 
-randomIntervals :: GlobalData -> GlobalTVars -> IO ()
-randomIntervals  gdata@GlobalData{..} gtv@GlobalTVars{..} = forever $ do
+randomIntervals :: GlobalData -> IO ()
+randomIntervals  gdata@GlobalData{..} = forever $ do
 --    putStrLn $ "[" ++ show myPort ++ "] random Intervals"
-    interval <- randomRIO(10,120)
+    interval <- randomRIO(10,30)
     print interval
     threadDelay (interval*second)
     putStrLn $ "I just waited for " ++ show interval ++ "second"
@@ -227,26 +222,24 @@ randomIntervals  gdata@GlobalData{..} gtv@GlobalTVars{..} = forever $ do
     --putStrLn "I am going to send now"
     mapM_ (sendP gdata (Newtx (recent+offset))) $ M.toList peers
 
-run ::  GlobalData -> HostName -> PortNumber ->  GlobalTVars -> IO ()
-run gdata@GlobalData{..} seedHostName seedPort gtv@GlobalTVars{..} = do
-    forkFinally (listen gdata gtv) (const $ putStrLn $ "I cannot listen on port: "++ show myPort)
-    forkIO $ learnPeers gdata seedHostName seedPort 3 gtv -- 3 is the default
-    forkFinally (randomIntervals gdata gtv) (const $ putStrLn "Random intervals ended unexpectedly")
+run ::  GlobalData -> HostName -> PortNumber -> IO ()
+run gdata@GlobalData{..} seedHostName seedPort = do
+    forkFinally (listen gdata) (const $ putStrLn $ "I cannot listen on port: "++ show myPort)
+    forkIO $ learnPeers gdata seedHostName seedPort 3 -- 3 is the default
+    forkFinally (randomIntervals gdata) (const $ putStrLn "Random intervals ended unexpectedly")
     return ()
--- TODO connect to Node to find new peers on startup
--- Send Newtx 0 messages
 
-clientThread :: GlobalData -> (Handle, HostName, PortNumber) -> GlobalTVars -> IO ()
-clientThread gdata@GlobalData{..} (h, cHostName, cPort) gtv@GlobalTVars{..} = do
+clientThread :: GlobalData -> (Handle, HostName, PortNumber) -> IO ()
+clientThread gdata@GlobalData{..} (h, cHostName, cPort) = do
     putStrLn $ "Accepted connection from " ++ show cHostName ++ ":" ++ show cPort
     hSetNewlineMode h universalNewlineMode
     hSetBuffering h LineBuffering
     forever $ do
         msg <- hGetLine h
-        processMessage gdata h cHostName gtv (read msg)
+        processMessage gdata h cHostName (read msg)
 
-processMessage :: GlobalData -> Handle -> HostName -> GlobalTVars ->  Message -> IO ()
-processMessage gdata@GlobalData{..} h cHostName gtv@GlobalTVars{..} = go
+processMessage :: GlobalData -> Handle -> HostName -> Message -> IO ()
+processMessage gdata@GlobalData{..} h cHostName = go
   where
     go (Status peers) = undefined
     go (Connect hostname port) = do
@@ -290,5 +283,7 @@ sendP :: GlobalData -> Message -> (Peer,Handle) -> IO ()
 sendP gdata@GlobalData{..} msg (Peer peerHost peerPort,h) = do
     appendFile logMessages $ "[" ++ show myPort ++ "] -> [" ++ show peerPort ++ "]: " ++ show msg ++ "\n"
     hPrint h msg
+
+
 
 --TODO use chans for each peer (add to record) . Else just open a new connection
