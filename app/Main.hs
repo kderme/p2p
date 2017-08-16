@@ -44,7 +44,6 @@ data GlobalData =
         , gtxs         :: TVar Transactions
         }
 
-
 newGlobalData :: HostName -> PortNumber -> Int -> TVar PeersHandle -> TVar Transactions-> IO GlobalData
 newGlobalData host port delay gpeers gtxs = do
   let logpath = "logging/" ++ show port
@@ -121,13 +120,17 @@ data InterMsg =
     | SetDelay Int
     deriving (Show, Read)
 
+trying :: String -> String
+trying "_" = "127.0.0.1"
+trying str = str
+
 main :: IO ()
 main = do
     gpeers <- newPeers --global Peers TVar
     gtxs <- newTransactions --global Transactions TVar
     args <- getArgs
     let myPort = read $ head args
-    let seedHostName = args !! 1
+    let seedHostName = trying $ args !! 1
     let seedPort = read $ args !! 2
     let delay = read $ args !! 3
     let myHostName = if length args <5 then "127.0.0.1" else args !! 4
@@ -163,9 +166,8 @@ learnPeers :: GlobalData -> HostName -> PortNumber -> Int -> IO ()
 learnPeers gdata@GlobalData{..} seedHostName seedPort num = do
     l <- go (3*num+1) [] seedHostName seedPort -- for num==3, 3n+1==10 .
     let l3 = take (min num (length l)) l
-    mapM_ (\(Peer host port) -> forkIO (connectToPeer gdata seedPort seedHostName)) l3 --TODO styling
-    return ()
-    where
+    mapM_ (\(Peer host port) -> forkIO (connectToPeer gdata seedPort seedHostName)) l3
+      where
         go n possible_conn hostname cport
             | n < 0     = return possible_conn
             | otherwise = do
@@ -191,6 +193,8 @@ connectToPeer gdata@GlobalData{..} port hostname = do
     h <- connectTo hostname $ PortNumber port
     atomically $ modifyTVar' gpeers $ M.insert (Peer hostname port) h
     send gdata (Connect myHostName myPort) h
+    forkFinally (clientThread gdata (h, hostname, port)) (const $ putStrLn "clientThread error")
+    return ()
 
 listen :: GlobalData -> IO ()
 listen gdata@GlobalData{..} = do
@@ -236,38 +240,39 @@ clientThread gdata@GlobalData{..} (h, cHostName, cPort) = do
     hSetBuffering h LineBuffering
     forever $ do
         msg <- hGetLine h
-        processMessage gdata h cHostName (read msg)
+        processMessage gdata h cHostName cPort (read msg)
 
-processMessage :: GlobalData -> Handle -> HostName -> Message -> IO ()
-processMessage gdata@GlobalData{..} h cHostName = go
-  where
-    go (Status peers) = undefined
-    go (Connect hostname port) = do
+processMessage :: GlobalData -> Handle -> HostName -> PortNumber -> Message -> IO ()
+processMessage gdata@GlobalData{..} h cHostName cPort msg = do
+  appendFile logMessages $ "[" ++ show cPort ++ "]  -> [" ++ show myPort ++ "]"  ++ show msg ++ "\n"
+  case msg of
+    Status peers -> undefined
+    Connect hostname port -> do
         atomically $ modifyTVar' gpeers $ M.insert (Peer hostname port) h
         return ()
-    go GetPeers = do
+    GetPeers -> do
         peers <- atomically $ readTVar gpeers -- ?
         send gdata (Status (M.keys peers)) h
-    go (Newtx tx) = do
+    Newtx tx -> do
         maybeTx <- atomically $ processNewTx tx gtxs
         timestamp <- getCurrentTime
         appendFile logfile ("Tx #: " ++ show tx ++ " from " ++ cHostName ++ " " ++ show timestamp ++ "\n")
         case maybeTx of
-            Nothing            -> propagateToPeers tx
+            Nothing            -> propagateToPeers gdata tx
             Just newestTxKnown -> send gdata (Oldtx newestTxKnown tx) h
-    go Quit = do
+    Quit -> do
         hClose h
         tid <- myThreadId
         killThread tid
-    go (Unknown str) = do
-        putStrLn "Error unknown message given"
+    Unknown str -> do
+        putStrLn $ "Error unknown message given: " ++ show str
         return ()
-    go (Oldtx newtx _) = do
+    Oldtx newtx _ -> do
         atomically $ processNewTx newtx gtxs
         return ()
 
-    propagateToPeers :: Tx -> IO ()
-    propagateToPeers tx = do
+propagateToPeers :: GlobalData -> Tx -> IO ()
+propagateToPeers gdata@GlobalData{..} tx = do
         peers <- atomically $ readTVar gpeers
         let msg = Newtx tx
         del <- atomically $ readTVar delay
