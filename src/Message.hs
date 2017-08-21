@@ -130,7 +130,7 @@ broadcast gdata@GlobalData{..} msg = do
 
 peerThread :: GlobalData -> PeerInfo -> IO ()
 peerThread gdata@GlobalData{..} peer@PeerInfo{..} = do
-    putStrLn $ "Enterging peerThread | on " ++ piHostName ++ ":" ++ show piPort
+    putStrLn $ "Entering peerThread | on " ++ piHostName ++ ":" ++ show piPort
     hSetNewlineMode piHandle universalNewlineMode
     hSetBuffering piHandle LineBuffering
     void $ forever $ do
@@ -140,18 +140,20 @@ peerThread gdata@GlobalData{..} peer@PeerInfo{..} = do
 -- IO (Either SomeException PeerInfo)
 connectToPeer :: GlobalData -> HostName -> PortNumber -> IO PeerInfo
 connectToPeer gdata@GlobalData{..} hostname port = do
-    putStrLn $ "Entering connectiToPeer " ++ hostname ++ ":" ++ show port
+    putStrLn $ "Entering connectToPeer " ++ hostname ++ ":" ++ show port
     h <- connectTo hostname $ PortNumber port
     peer <- newPeer gdata hostname port h
-    forkFinally (readThread gdata peer) (const $ putStrLn "READ_THREAD RETURNED.")
-    forkFinally (peerThread gdata peer) (const $ putStrLn "PEER_THREAD RETURNED.")
+    let a = forkFinally (readThread gdata peer) (const $ putStrLn "READ_THREAD RETURNED."
+            >> deleteAndDie gdata peer)
+        b = forkFinally (peerThread gdata peer) (const $ putStrLn "PEER_THREAD RETURNED.")
+    race_ a b
     -- TODO maybe make sure we listen before sending Connect message.
     sendP gdata (Connect myHostName myPort) peer
     return peer -- $ Right peer
 
 readThread :: GlobalData -> PeerInfo -> IO ()
 readThread gdata@GlobalData{..} peer@PeerInfo{..} = do
-    putStrLn $ "Enterging readThread | on " ++ piHostName ++ ":" ++ show piPort
+    putStrLn $ "Entering readThread | on " ++ piHostName ++ ":" ++ show piPort
 --  hSetNewlineMode piHandle universalNewlineMode
 --  hSetBuffering piHandle LineBuffering
     forever $ do
