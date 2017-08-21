@@ -132,6 +132,7 @@ data InterMsg =
     | Send HostName PortNumber Message
     | SetDelay Int
     | PingPong
+    | LowBound HostName PortNumber Int
     deriving (Show, Read)
 
 trying :: String -> String
@@ -166,6 +167,7 @@ interactive gdata@GlobalData{..} seedHostName seedPortName =
 --            Send host port msg     -> void $ forkIO $ sendIfPeer gdata host port msg
             SetDelay val           -> atomically $ writeTVar delay val
             PingPong               -> void $ forkIO $ triggerPing gdata
+            LowBound host port n   -> void $ forkIO $ triggerLearn gdata host port n
             _                      -> putStrLn "Command not defined yet"
 
 run ::  GlobalData -> HostName -> PortNumber -> IO ()
@@ -188,6 +190,23 @@ triggerPing gdata@GlobalData{..} = forever $ do
     fpeers <- filterM ( readTVar . piRespond . snd) $ M.toList peers
     let newPeers = foldl (flip M.delete) peers $ map fst fpeers
     writeTVar gpeers newPeers
+
+triggerLearn :: GlobalData -> HostName -> PortNumber -> Int -> IO ()
+triggerLearn gdata@GlobalData{..} seedHostName seedPort target = loop
+    where
+  loop :: IO ()
+  loop = do
+    threadDelay (150*second)
+    putStrLn "Trigger learn"
+    n <- atomically $ do
+      peers <- readTVar gpeers
+      return $ M.size peers
+    if n < target then do
+      putStrLn $ "Left with " ++ show n ++ " Peers."
+      void $ forkIO $ learnPeers gdata seedHostName seedPort target
+      return ()
+    else
+      loop
 
 {-
 deletePeer :: GlobalData -> Peer -> STM ()
