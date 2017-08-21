@@ -1,4 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
 module Main where
 
 import           Discovery
@@ -9,19 +8,19 @@ import           Peers
 import           Transactions
 
 import           Control.Concurrent
+import           Control.Concurrent.Async
 import           Control.Concurrent.STM
 import           Control.Exception
 import           Control.Monad
-import           Control.Concurrent.Async
-import           Data.List
-import           Data.Time
-import qualified Data.Map as M
 import           Data.IORef
+import           Data.List
+import qualified Data.Map                 as M
+import           Data.Time
 import           Network
+import           System.Directory
 import           System.Environment
 import           System.IO
 import           System.Random
-import           System.Directory
 
 newGlobalData :: HostName -> PortNumber -> Int -> TVar PeersDict -> TVar Transactions-> IO GlobalData
 newGlobalData host port delay gpeers gtxs = do
@@ -45,6 +44,7 @@ main = do
     gpeers <- newPeers --global Peers TVar
     gtxs <- newTransactions --global Transactions TVar
     args <- getArgs
+    when (length args < 4) (return ())
     let myPort = read $ head args
         seedHostName = trying $ args !! 1
         seedPort = read $ args !! 2

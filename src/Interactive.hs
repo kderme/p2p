@@ -8,19 +8,19 @@ import           Peers
 import           Transactions
 
 import           Control.Concurrent
+import           Control.Concurrent.Async
 import           Control.Concurrent.STM
 import           Control.Exception
 import           Control.Monad
-import           Control.Concurrent.Async
-import           Data.List
-import           Data.Time
-import qualified Data.Map as M
 import           Data.IORef
+import           Data.List
+import qualified Data.Map                 as M
+import           Data.Time
 import           Network
+import           System.Directory
 import           System.Environment
 import           System.IO
 import           System.Random
-import           System.Directory
 
 data InterMsg =
     Run
@@ -55,7 +55,7 @@ interactive gdata@GlobalData{..} seedHostName seedPortName =
 
 run ::  GlobalData -> HostName -> PortNumber -> IO ()
 run gdata@GlobalData{..} seedHostName seedPort = do
-    forkFinally (listen gdata) (const $ putStrLn $ "I cannot listen on port: "++ show myPort)
+    forkFinally (listen gdata) (const $ putStrLn $ "I died listening on port: "++ show myPort)
     forkIO $ learnPeers gdata seedHostName seedPort 3 -- 3 is the default
     forkFinally (randomIntervals gdata) (const $ putStrLn "Random intervals ended unexpectedly")
     return ()

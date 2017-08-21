@@ -2,23 +2,23 @@
 module Message where
 
 import           Lib
-import           Transactions
 import           Peers
+import           Transactions
 
 import           Control.Concurrent
+import           Control.Concurrent.Async
 import           Control.Concurrent.STM
 import           Control.Exception
 import           Control.Monad
-import           Control.Concurrent.Async
-import           Data.List
-import           Data.Time
-import qualified Data.Map as M
 import           Data.IORef
+import           Data.List
+import qualified Data.Map                 as M
+import           Data.Time
 import           Network
+import           System.Directory
 import           System.Environment
 import           System.IO
 import           System.Random
-import           System.Directory
 
 listen :: GlobalData -> IO ()
 listen gdata@GlobalData{..} = do
@@ -30,18 +30,19 @@ listen gdata@GlobalData{..} = do
 
 waitConnection :: GlobalData -> (Handle, HostName, PortNumber) -> IO ()
 waitConnection gdata@GlobalData{..} (h, cHostName, cPort) = do
-  putStrLn $ "waiting for a Connect to Message from " ++ cHostName ++ ":" ++ show cPort
+    putStrLn $ "waiting for a Connect to Message from " ++ cHostName ++ ":" ++ show cPort
 --  hSetNewlineMode h universalNewlineMode
 --  hSetBuffering h LineBuffering
-  msg <- hGetLine h
-  print msg
-  case read msg of
-    Connect hostname port -> do
-      peer <- newPeer gdata hostname port h
-      peerThread gdata peer
-    _ ->
-      -- first message wasn`t Connect
-      return ()
+    msg <- hGetLine h
+    print msg
+    case read msg of
+        Connect hostname port -> do
+            peer <- newPeer gdata hostname port h
+            forkIO $ readThread gdata peer
+            peerThread gdata peer
+        _ ->
+            void $ putStrLn $ "My peer" ++ cHostName ++ ":" ++ show cPort
+            ++ "didnt send Connect as his first message"
 
 
 processMessage :: GlobalData -> PeerInfo -> Message -> IO ()
@@ -55,14 +56,16 @@ processMessage gdata@GlobalData{..} peer@PeerInfo{..} msg = do
         return ()
     GetPeers -> do
         peers <- atomically $ readTVar gpeers -- ?
-        send gdata (Status (M.keys peers)) piHandle
+        sendMessage gdata peer (Status (M.keys peers))
+        --send gdata (Status (M.keys peers)) piHandle
     Newtx tx -> do
         maybeTx <- atomically $ processNewTx tx gtxs
         timestamp <- getCurrentTime
         appendFile logfile ("Tx #: " ++ show tx ++ " from " ++ piHostName ++ " " ++ show timestamp ++ "\n")
         case maybeTx of
             Nothing            -> broadcast gdata (Newtx tx)
-            Just newestTxKnown -> send gdata (Oldtx newestTxKnown tx) piHandle
+            Just newestTxKnown -> sendMessage gdata peer (Oldtx newestTxKnown tx)
+                --send gdata (Oldtx newestTxKnown tx) piHandle
     Quit -> do
         hClose piHandle
         tid <- myThreadId
@@ -74,7 +77,8 @@ processMessage gdata@GlobalData{..} peer@PeerInfo{..} msg = do
         atomically $ processNewTx newtx gtxs
         return ()
     Ping ->
-        send gdata Pong piHandle
+        undefined
+        --send gdata Pong piHandle
     Pong ->
         atomically $ writeTVar piRespond True
 
@@ -98,8 +102,8 @@ randomIntervals  gdata@GlobalData{..} = forever $ do
 --    mapM_ (sendP gdata (Newtx (recent+offset))) $ M.toList peers
 
 
-sendP1 :: GlobalData -> Message -> PeerInfo -> IO () -> IO ()
-sendP1 gdata msg peer cont = sendP gdata msg peer >> cont
+--sendP1 :: GlobalData -> Message -> PeerInfo -> IO () -> IO ()
+--sendP1 gdata msg peer cont = sendP gdata msg peer >> cont
 
 del :: TVar PeersDict -> Peer -> STM ()
 del gpeers peer = do
@@ -121,10 +125,12 @@ sendMessage gdata@GlobalData{..} PeerInfo{..} msg = do
     appendFile logMessages $ "Chan : [" ++ show myPort ++ "] -> [" ++ show piPort ++ "]: " ++ show msg ++ "\n"
     atomically $ writeTChan piChan msg
 
+
 send :: GlobalData -> Message -> Handle -> IO ()
 send gdata@GlobalData{..} msg h = do
     appendFile logMessages $ "[" ++ show myPort ++ "] -> [????]: " ++ show msg ++ "\n"
     hPrint h msg
+
 
 sendP :: GlobalData -> Message -> PeerInfo -> IO ()
 sendP gdata@GlobalData{..} msg peer@PeerInfo{..} = do
@@ -136,21 +142,14 @@ peerThread gdata@GlobalData{..} peer@PeerInfo{..} = do
     putStrLn $ "peerThread for " ++ piHostName ++ ":" ++ show piPort
     hSetNewlineMode piHandle universalNewlineMode
     hSetBuffering piHandle LineBuffering
-    race_ receive serve
---  putStrLn $ "Accepted connection from " ++ show cHostName ++ ":" ++ show cPort
+    void $ forever serve
     where
-      receive :: IO ()
-      receive = forever $ do
-        appendFile logMessages "receive\n"
-        msg <- hGetLine piHandle
-        processMessage gdata peer (read msg)
-
-      serve :: IO ()
-      serve = do
+    serve :: IO ()
+    serve = do
         appendFile logMessages "serve\n"
         join $ atomically $ do
             msg <- readTChan piChan
-            return $ sendP1 gdata msg peer serve
+            return $ sendP gdata msg peer
 
 -- IO (Either SomeException PeerInfo)
 connectToPeer :: GlobalData -> HostName -> PortNumber -> IO PeerInfo
@@ -158,10 +157,21 @@ connectToPeer gdata@GlobalData{..} hostname port = do
     putStrLn $ " connecting to peer " ++ hostname ++ ":" ++ show port
     h <- connectTo hostname $ PortNumber port
     peer <- newPeer gdata hostname port h
+    forkIO $ readThread gdata peer
     forkFinally (peerThread gdata peer) (const $ putStrLn "clientThread error")
     -- TODO maybe make sure we listen before sending Connect message.
-    send gdata (Connect myHostName myPort) h
+    sendP gdata (Connect myHostName myPort) peer
     return peer -- $ Right peer
+
+
+readThread :: GlobalData -> PeerInfo -> IO ()
+readThread gdata@GlobalData{..} peer@PeerInfo{..} = do
+    putStrLn $ "readThread for " ++ piHostName ++ ":" ++ show piPort
+    hSetNewlineMode piHandle universalNewlineMode
+    hSetBuffering piHandle LineBuffering
+    forever $ do
+        msg <- hGetLine piHandle
+        processMessage gdata peer (read msg)
 
 {-
 sendIfPeer :: GlobalData -> HostName -> PortNumber -> Message  -> IO ()
