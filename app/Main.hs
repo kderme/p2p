@@ -35,9 +35,11 @@ newGlobalData host port delay gpeers gtxs = do
   let
     log = logpath ++ "/txs"
     logm = logpath ++ "/messages"
+  lock <- newMVar ()
+  lockm <- newMVar ()
   appendFile logm $ "Logging for " ++ show host ++ ":" ++ show port ++ "\n"
   del <- newTVarIO delay
-  return $ GlobalData host port log logm del gpeers gtxs
+  return $ GlobalData host port lock log lockm logm del gpeers gtxs
 
 main :: IO ()
 main = do

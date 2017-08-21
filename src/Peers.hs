@@ -24,6 +24,7 @@ newPeers = newTVarIO M.empty
 
 newPeer :: GlobalData -> HostName -> PortNumber -> Handle -> IO PeerInfo
 newPeer GlobalData{..} hostname port h = do
+    putStrLn $ "Entering newPeer | " ++ hostname ++ ":" ++ show port
     chan   <- newTChanIO
     responding <- newTVarIO True
     let peer = PeerInfo hostname port h chan responding

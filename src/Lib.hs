@@ -19,7 +19,9 @@ data GlobalData =
     GlobalData
         { myHostName   :: HostName
         , myPort       :: PortNumber
-        , logfile      :: FilePath
+        , lockFile     :: MVar ()
+        , logFile      :: FilePath
+        , lockMessages :: MVar ()
         , logMessages  :: FilePath
         , delay        :: TVar Int
         , gpeers       :: TVar PeersDict
@@ -65,3 +67,15 @@ second = 1000000
 trying :: String -> String
 trying "_" = "127.0.0.1"
 trying str = str
+
+safeLog :: MVar () -> FilePath -> String -> IO ()
+safeLog lock file str = do
+  takeMVar lock
+  appendFile file str
+  putMVar lock ()
+
+safeLogMsg :: MVar () -> FilePath -> Message -> PortNumber -> PortNumber -> IO ()
+safeLogMsg lock file msg fromPort toPort =
+  safeLog lock file str
+    where
+      str = "["++ show fromPort ++ "]" ++ "-->" ++ "["++ show toPort ++ "]: " ++ show msg ++ "\n"

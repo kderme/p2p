@@ -23,6 +23,7 @@ import           System.Directory
 
 learnPeers :: GlobalData -> HostName -> PortNumber -> Int -> IO ()
 learnPeers gdata@GlobalData{..} seedHostName seedPort target = do
+    putStrLn $ "Entering learnPeers | " ++ seedHostName ++ show seedPort
     l <- go (3*target+1) [] seedHostName seedPort -- for num==3, 3n+1==10 .
     let l3 = take (min target (length l)) l
     mapM_ (\(Peer host port) -> forkIO (void $ connectToPeer gdata host port)) l3
