@@ -32,6 +32,7 @@ data PeerInfo =
       , piPort     :: PortNumber
       , piHandle   :: Handle
       , piChan     :: TChan Message
+      , piRespond  :: TVar Bool
     }
 
 type Peers = [Peer]
@@ -83,6 +84,8 @@ data Message =
     | Oldtx Tx Tx
     | Quit
     | Unknown String
+    | Ping
+    | Pong
     deriving (Read, Show)
 
 -- Transactions Interface --
@@ -128,6 +131,7 @@ data InterMsg =
     | SetArgs
     | Send HostName PortNumber Message
     | SetDelay Int
+    | PingPong
     deriving (Show, Read)
 
 trying :: String -> String
@@ -161,6 +165,7 @@ interactive gdata@GlobalData{..} seedHostName seedPortName =
             ShowTxs                -> atomically (readTVar gtxs) >>= print
 --            Send host port msg     -> void $ forkIO $ sendIfPeer gdata host port msg
             SetDelay val           -> atomically $ writeTVar delay val
+            PingPong               -> void $ forkIO $ triggerPing gdata
             _                      -> putStrLn "Command not defined yet"
 
 run ::  GlobalData -> HostName -> PortNumber -> IO ()
@@ -169,6 +174,25 @@ run gdata@GlobalData{..} seedHostName seedPort = do
     forkIO $ learnPeers gdata seedHostName seedPort 3 -- 3 is the default
     forkFinally (randomIntervals gdata) (const $ putStrLn "Random intervals ended unexpectedly")
     return ()
+
+triggerPing :: GlobalData -> IO ()
+triggerPing gdata@GlobalData{..} = forever $ do
+  threadDelay (120*second)
+  atomically $ do
+    peers <- readTVar gpeers
+    mapM_ (\ peer@PeerInfo{..} -> writeTVar piRespond False) $ M.elems peers
+  broadcast gdata Ping
+  threadDelay (60*second)
+  atomically $ do
+    peers <- readTVar gpeers
+    fpeers <- filterM ( readTVar . piRespond . snd) $ M.toList peers
+    let newPeers = foldl (flip M.delete) peers $ map fst fpeers
+    writeTVar gpeers newPeers
+
+{-
+deletePeer :: GlobalData -> Peer -> STM ()
+deletePeer gdata@GlobalData{..} peer =
+-}
 
 learnPeers :: GlobalData -> HostName -> PortNumber -> Int -> IO ()
 learnPeers gdata@GlobalData{..} seedHostName seedPort target = do
@@ -200,7 +224,8 @@ learnPeers gdata@GlobalData{..} seedHostName seedPort target = do
 newPeer :: GlobalData -> HostName -> PortNumber -> Handle -> IO PeerInfo
 newPeer GlobalData{..} hostname port h = do
     chan   <- newTChanIO
-    let peer = PeerInfo hostname port h chan
+    responding <- newTVarIO True
+    let peer = PeerInfo hostname port h chan responding
     atomically $ modifyTVar' gpeers $ M.insert (Peer hostname port) peer
     return peer
 
@@ -315,6 +340,11 @@ processMessage gdata@GlobalData{..} peer@PeerInfo{..} msg = do
     Oldtx newtx _ -> do
         atomically $ processNewTx newtx gtxs
         return ()
+    Ping ->
+        send gdata Pong piHandle
+    Pong ->
+        atomically $ writeTVar piRespond True
+      --  atomically $
 
 broadcast :: GlobalData -> Message -> IO ()
 broadcast gdata@GlobalData{..} msg = do
