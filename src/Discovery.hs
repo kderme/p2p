@@ -14,6 +14,7 @@ import           System.IO
 -- until Status message comes.
 waitStatus :: Handle -> IO Peers
 waitStatus h = do
+    putStrLn "Entering waitStatus"
     answer <- hGetLine h
     case read answer of
       Status p -> return p
@@ -35,7 +36,7 @@ learnPeers gdata@GlobalData{..} seedHostName seedPort target = do
     print l
     let l3 = take (min target (length l)) l -- picks the peers to which will connect
     print l3
-    -- threadDelay (5*second)
+    threadDelay (3*second)
     mapM_ (\(Peer host port) -> forkFinally (void $ connectToPeer gdata host port)
         (const $ putStrLn "CONNECT_TO_PEER RETURNED") ) l3 -- connects to the list of selected peers
       where
@@ -43,6 +44,8 @@ learnPeers gdata@GlobalData{..} seedHostName seedPort target = do
             | n < 0     = return $ possible_conn ++ connected
             | otherwise = do
                 h <- connectTo hostname $ PortNumber cport
+                hSetNewlineMode h universalNewlineMode
+                hSetBuffering h LineBuffering
                 send gdata (Connect myHostName myPort) h
                 send gdata GetPeers h
                 p' <- waitStatus h -- waits for the peers of the other

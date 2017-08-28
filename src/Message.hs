@@ -20,6 +20,8 @@ listen gdata@GlobalData{..} = do
     s   <- listenOn (PortNumber myPort)
     forever $ do
         (h, hname, p) <- accept s
+--        hSetNewlineMode h universalNewlineMode
+--        hSetBuffering h LineBuffering
         putStrLn "new Connection"
         forkFinally (waitConnection gdata (h, hname, p)) (const $ putStrLn "WAIT_CONNECTION FAILED")
 
@@ -145,8 +147,8 @@ broadcast' gdata@GlobalData{..} parasite msg = do
 peerThread :: GlobalData -> PeerInfo -> IO ()
 peerThread gdata@GlobalData{..} peer@PeerInfo{..} = do
     putStrLn $ "Entering peerThread | on " ++ piHostName ++ ":" ++ show piPort
---    hSetNewlineMode piHandle universalNewlineMode
---    hSetBuffering piHandle LineBuffering
+    hSetNewlineMode piHandle universalNewlineMode
+    hSetBuffering piHandle LineBuffering
     void $ forever $ do
         msg <- atomically $ readTChan piChan
         sendP gdata msg peer
@@ -178,8 +180,8 @@ handleReadThread gdata@GlobalData{..} peer@PeerInfo{..} tid = do
 readThread :: GlobalData -> PeerInfo -> IO ()
 readThread gdata@GlobalData{..} peer@PeerInfo{..} = do
     putStrLn $ "Entering readThread | on " ++ piHostName ++ ":" ++ show piPort
-    hSetNewlineMode piHandle universalNewlineMode
-    hSetBuffering piHandle LineBuffering
+--    hSetNewlineMode piHandle universalNewlineMode
+--    hSetBuffering piHandle LineBuffering
     forever $ do
     --  putStrLn $ "readThread loop " ++ show piPort ++ "\n"
         msg <- hGetLine piHandle
@@ -194,6 +196,7 @@ writeToChan GlobalData{..} PeerInfo{..} msg =
 -- | Sends a message through the given handle.
 send :: GlobalData -> Message -> Handle -> IO ()
 send GlobalData{..} msg h = do
+    safeLogMsg lockMessages logMessages msg myPort 0
     putStrLn $ "[" ++ show myPort ++ "] -> [????]: " ++ show msg ++ "\n"
     hPrint h msg
 

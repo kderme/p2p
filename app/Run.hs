@@ -47,3 +47,4 @@ main = do
     gtxs <- newTransactions --global Transactions TVar
     gdata <- newGlobalData myHostName myPort delay gpeers gtxs
     run gdata seedHostName seedPort
+    interactive gdata seedHostName seedPort
