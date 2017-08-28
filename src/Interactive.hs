@@ -42,7 +42,8 @@ interactive gdata@GlobalData{..} seedHostName seedPortName =
         line <- getLine
         let command = read line
         case command of
-            Run                    -> void $ forkIO $ run gdata seedHostName seedPortName
+            Run                    -> void $ forkFinally (run gdata seedHostName seedPortName)
+                (const $ putStrLn "RUN RETURNED")
             LearnPeers host port n -> void $ forkIO $ learnPeers gdata host port n
             ShowPeers              -> M.keys <$> atomically (readTVar gpeers) >>= print
             ShowTxs                -> atomically (readTVar gtxs) >>= print
@@ -56,8 +57,8 @@ interactive gdata@GlobalData{..} seedHostName seedPortName =
 run ::  GlobalData -> HostName -> PortNumber -> IO ()
 run gdata@GlobalData{..} seedHostName seedPort = do
     forkFinally (listen gdata) (const $ putStrLn $ "I died listening on port: "++ show myPort)
-    forkIO $ learnPeers gdata seedHostName seedPort 3 -- 3 is the default
-    forkFinally (randomIntervals gdata) (const $ putStrLn "Random intervals ended unexpectedly")
+    forkFinally (learnPeers gdata seedHostName seedPort 3) (const $ putStrLn "LEARN_PEERS RETURNED")
+    forkFinally (randomIntervals gdata) (const $ putStrLn "RANDOM_INTERVALS RETURNED")
     return ()
 
 triggerPing :: GlobalData -> IO ()

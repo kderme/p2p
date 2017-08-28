@@ -39,9 +39,8 @@ waitConnection gdata@GlobalData{..} (h, cHostName, cPort) = do
         Connect hostname port -> do
             safeLogMsg lockMessages logMessages (read msg) port myPort
             peer <- newPeer gdata hostname port h
-            forkFinally (peerThread gdata peer) (const $ putStrLn "PEER_THREAD RETURNED.")
-            readThread gdata peer
-            putStrLn "READ_THREAD RETURNED."
+            tid <- forkFinally (peerThread gdata peer) (const $ putStrLn "PEER_THREAD RETURNED.")
+            void $ forkFinally (readThread gdata peer) (const $ handleReadThread gdata peer tid)
         _ ->
             void $ putStrLn $ "WRONG FIRST MESSAGE | " ++ show msg
                 ++ ",from" ++ cHostName ++ ":" ++ show cPort
@@ -65,10 +64,12 @@ processMessage gdata@GlobalData{..} peer@PeerInfo{..} msg = do
         safeLog lockFile logFile $ "Tx #: " ++ show tx ++ " from " ++ piHostName
             ++ " " ++ show timestamp ++ "\n"
         case maybeTx of
-            Nothing            -> broadcast gdata (Newtx tx)
+          --
+            Nothing            -> broadcast' gdata (Peer piHostName piPort) (Newtx tx)
             Just newestTxKnown -> writeToChan gdata peer (Oldtx newestTxKnown tx)
                 --send gdata (Oldtx newestTxKnown tx) piHandle
-    Quit -> deleteAndDie gdata peer
+    Quit ->
+          deleteAndDie gdata peer
 --        hClose piHandle
 --        tid <- myThreadId
 --        killThread tid
@@ -97,7 +98,6 @@ deleteAndDie gdata@GlobalData{..} peer@PeerInfo{..} = do
   atomically $ del gpeers $ Peer piHostName piPort
   hClose piHandle
   tid <- myThreadId
-
   killThread tid
 
 randomIntervals :: GlobalData -> IO ()
@@ -123,39 +123,52 @@ randomIntervals  gdata@GlobalData{..} = do
 
 broadcast :: GlobalData -> Message -> IO ()
 broadcast gdata@GlobalData{..} msg = do
+        putStrLn $ "Entering broadcast " ++ show msg
+        peers <- readTVarIO gpeers
+        del <- readTVarIO delay
+        -- >> threadDelay(del*second)
+        mapM_ (\ peer -> writeToChan gdata peer msg) (M.elems peers)
+
+broadcast' :: GlobalData -> Peer -> Message -> IO ()
+broadcast' gdata@GlobalData{..} pswriarhs msg = do
+        putStrLn $ "Entering broadcast' " ++ show msg
         peers <- readTVarIO gpeers
         del <- readTVarIO delay
 --        threadDelay(del*second)
-        mapM_ (\ peer -> writeToChan gdata peer msg) (M.elems peers)
+        mapM_ (\ peer -> writeToChan gdata (peers M.! peer) msg)
+            (filter (/= pswriarhs) $ M.keys peers)
 
 peerThread :: GlobalData -> PeerInfo -> IO ()
 peerThread gdata@GlobalData{..} peer@PeerInfo{..} = do
     putStrLn $ "Entering peerThread | on " ++ piHostName ++ ":" ++ show piPort
-    hSetNewlineMode piHandle universalNewlineMode
-    hSetBuffering piHandle LineBuffering
+--    hSetNewlineMode piHandle universalNewlineMode
+--    hSetBuffering piHandle LineBuffering
     void $ forever $ do
         msg <- atomically $ readTChan piChan
         sendP gdata msg peer
 
--- IO (Either SomeException PeerInfo)
 connectToPeer :: GlobalData -> HostName -> PortNumber -> IO PeerInfo
 connectToPeer gdata@GlobalData{..} hostname port = do
     putStrLn $ "Entering connectToPeer " ++ hostname ++ ":" ++ show port
     h <- connectTo hostname $ PortNumber port
     peer <- newPeer gdata hostname port h
-    let a = forkFinally (readThread gdata peer) (const $ putStrLn "READ_THREAD RETURNED."
-            >> deleteAndDie gdata peer)
-        b = forkFinally (peerThread gdata peer) (const $ putStrLn "PEER_THREAD RETURNED.")
-    race_ a b
+    tid <- forkFinally (peerThread gdata peer) (const $ putStrLn "PEER_THREAD RETURNED.")
+    forkFinally (readThread gdata peer) (const $ handleReadThread gdata peer tid)
     -- TODO maybe make sure we listen before sending Connect message.
     sendP gdata (Connect myHostName myPort) peer
     return peer -- $ Right peer
 
+handleReadThread :: GlobalData -> PeerInfo -> ThreadId -> IO ()
+handleReadThread gdata@GlobalData{..} peer@PeerInfo{..} tid = do
+  putStrLn "READ_THREAD RETURNED."
+  killThread tid
+  deleteAndDie gdata peer
+
 readThread :: GlobalData -> PeerInfo -> IO ()
 readThread gdata@GlobalData{..} peer@PeerInfo{..} = do
     putStrLn $ "Entering readThread | on " ++ piHostName ++ ":" ++ show piPort
---  hSetNewlineMode piHandle universalNewlineMode
---  hSetBuffering piHandle LineBuffering
+    hSetNewlineMode piHandle universalNewlineMode
+    hSetBuffering piHandle LineBuffering
     forever $ do
     --  putStrLn $ "readThread loop " ++ show piPort ++ "\n"
         msg <- hGetLine piHandle
