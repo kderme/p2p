@@ -56,8 +56,8 @@ processMessage gdata@GlobalData{..} peer@PeerInfo{..} msg = do
     Newtx tx -> do
         maybeTx <- atomically $ processNewTx tx gtxs
         timestamp <- getCurrentTime
-        safeLog lockFile logFile $ "Tx #: " ++ show tx ++ " from " ++ piHostName
-            ++ " " ++ show timestamp ++ "\n"
+        safeLog lockFile logFile $ "Tx #: " ++ show tx ++ " from " ++ piHostName ++ ":"
+            ++ show piPort ++ " " ++ show timestamp ++ "\n"
         case maybeTx of
           --
             Nothing            -> broadcast' gdata (Peer piHostName piPort) (Newtx tx)
@@ -135,10 +135,14 @@ broadcast' :: GlobalData -> Peer -> Message -> IO ()
 broadcast' gdata@GlobalData{..} parasite msg = do
         putStrLn $ "Entering broadcast' " ++ show msg
         peers <- readTVarIO gpeers
-        -- del <- readTVarIO delay
-        -- threadDelay(del*second)
-        mapM_ (\ peer -> writeToChan gdata (peers M.! peer) msg)
-            (filter (/= parasite) $ M.keys peers)
+        delay' <- readTVarIO delay
+        -- threadDelay(delay'*second)
+        let
+            delayAndWrite peer = do
+                threadDelay(delay'*second)
+                writeToChan gdata (peers M.! peer) msg
+        mapM_ delayAndWrite (filter (/= parasite) $ M.keys peers)
+
 
 -- | A function that reads from the channel of a peer and
 -- sends it to its handle. Using a channel we are sure
@@ -147,8 +151,8 @@ broadcast' gdata@GlobalData{..} parasite msg = do
 peerThread :: GlobalData -> PeerInfo -> IO ()
 peerThread gdata@GlobalData{..} peer@PeerInfo{..} = do
     putStrLn $ "Entering peerThread | on " ++ piHostName ++ ":" ++ show piPort
-    hSetNewlineMode piHandle universalNewlineMode
-    hSetBuffering piHandle LineBuffering
+    -- hSetNewlineMode piHandle universalNewlineMode
+    -- hSetBuffering piHandle LineBuffering
     void $ forever $ do
         msg <- atomically $ readTChan piChan
         sendP gdata msg peer
