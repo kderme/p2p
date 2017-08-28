@@ -4,23 +4,12 @@ module Interactive where
 import           Discovery
 import           Lib
 import           Message
-import           Peers
-import           Transactions
 
 import           Control.Concurrent
-import           Control.Concurrent.Async
 import           Control.Concurrent.STM
-import           Control.Exception
 import           Control.Monad
-import           Data.IORef
-import           Data.List
 import qualified Data.Map                 as M
-import           Data.Time
 import           Network
-import           System.Directory
-import           System.Environment
-import           System.IO
-import           System.Random
 
 data InterMsg =
     Run
@@ -51,7 +40,7 @@ interactive gdata@GlobalData{..} seedHostName seedPortName =
             SetDelay val           -> atomically $ writeTVar delay val
             PingPong               -> void $ forkIO $ triggerPing gdata
             LowBound host port n   -> void $ forkIO $ triggerLearn gdata host port n
---            Graph host port        -> void $ forkIO createGraph gdata host port
+--          Graph host port        -> void $ forkIO createGraph gdata host port
             _                      -> putStrLn "Command not defined yet"
 
 run ::  GlobalData -> HostName -> PortNumber -> IO ()
@@ -66,7 +55,7 @@ triggerPing gdata@GlobalData{..} = forever $ do
   threadDelay (120*second)
   atomically $ do
     peers <- readTVar gpeers
-    mapM_ (\ peer@PeerInfo{..} -> writeTVar piRespond False) $ M.elems peers
+    mapM_ (\ PeerInfo{..} -> writeTVar piRespond False) $ M.elems peers
   broadcast gdata Ping
   threadDelay (60*second)
   atomically $ do

@@ -2,18 +2,9 @@ module Lib where
 
 import           Control.Concurrent
 import           Control.Concurrent.STM
-import           Control.Exception
-import           Control.Monad
-import           Control.Concurrent.Async
-import           Data.List
-import           Data.Time
 import qualified Data.Map as M
-import           Data.IORef
 import           Network
-import           System.Environment
 import           System.IO
-import           System.Random
-import           System.Directory
 
 data GlobalData =
     GlobalData
@@ -61,19 +52,26 @@ data Message =
     | Pong
     deriving (Read, Show)
 
+-- | A second = 1.000.000 us
 second :: Int
 second = 1000000
 
+-- | A helper function that if the given string is "_"
+-- then it outputs localhost address.
 trying :: String -> String
 trying "_" = "127.0.0.1"
 trying str = str
 
+-- | A helper function that appends a string to a file
+-- after taking the lock.
 safeLog :: MVar () -> FilePath -> String -> IO ()
 safeLog lock file str = do
   takeMVar lock
   appendFile file str
   putMVar lock ()
 
+-- | A helper function that writes the message, the sender,
+-- and the receiver to a file after taking the lock.
 safeLogMsg :: MVar () -> FilePath -> Message -> PortNumber -> PortNumber -> IO ()
 safeLogMsg lock file msg fromPort toPort =
   safeLog lock file str
