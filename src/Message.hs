@@ -74,9 +74,9 @@ processMessage gdata@GlobalData{..} peer@PeerInfo{..} msg = do
     Oldtx newtx _ -> do
         atomically $ processNewTx newtx gtxs
         return ()
-    Ping ->
-        undefined
-        --send gdata Pong piHandle
+    Ping -> do
+        p <- readTVarIO pong
+        when p $ send gdata Pong piHandle
     Pong ->
         atomically $ writeTVar piRespond True
 

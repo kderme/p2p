@@ -1,5 +1,8 @@
 module Main where
 
+main :: IO ()
+main = return ()
+{-}
 import           Interactive
 import           Lib
 import           Peers
@@ -45,3 +48,4 @@ main = do
         myHostName = if length args <5 then "127.0.0.1" else args !! 4
     gdata <- newGlobalData myHostName myPort delay gpeers gtxs
     interactive gdata seedHostName seedPort
+-}
