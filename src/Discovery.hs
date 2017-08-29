@@ -4,6 +4,7 @@ module Discovery where
 import           Lib
 import           Message
 
+import           Network.HostName as H (getHostName)
 import           Control.Concurrent
 import           Control.Monad
 import           Data.Array.IO
@@ -52,13 +53,14 @@ learnPeers gdata@GlobalData{..} seedHostName seedPort target = do
                 -- hSetNewlineMode h universalNewlineMode
                 -- hSetBuffering h LineBuffering
                 -- threadDelay (2*second)
-                send gdata (Connect myHostName myPort) h
+                myhost <- H.getHostName
+                send gdata (Connect myhost myPort) h
                 send gdata GetPeers h
                 p' <- waitStatus h -- waits for the peers of the other
                 send gdata Quit h  -- sends Quit message to the other
                 hClose h           -- closes the handle
                 let
-                  p = filter (\ s -> s /= Peer myHostName myPort) p'
+                  p = filter (\ s -> s /= Peer myhost myPort) p'
                   -- filters out himself of other's peers
                   newPossible = (S.fromList p `S.union` possible_conn) `S.difference` connected
                   -- filters out already connected peers
