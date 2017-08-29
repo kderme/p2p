@@ -18,11 +18,11 @@ data InterMsg =
     | ShowTxs
     | ShowPeers
     | SetArgs
-    | Send HostName PortNumber Message
     | SetDelay Int
     | SetPong Bool
     | PingPong
     | LowBound HostName PortNumber Int
+    | Send HostName PortNumber Message
     | Graph HostName PortNumber
     deriving (Show, Read)
 
@@ -39,9 +39,10 @@ interactive gdata@GlobalData{..} seedHostName seedPortName =
             ShowTxs                -> atomically (readTVar gtxs) >>= print
 --          Send host port msg     -> void $ forkIO $ sendIfPeer gdata host port msg
             SetDelay val           -> atomically $ writeTVar delay val
-            SetPong val           -> atomically $ writeTVar pong val
+            SetPong val            -> atomically $ writeTVar pong val
             PingPong               -> void $ forkIO $ triggerPing gdata
-            LowBound host port n   -> void $ forkIO $ triggerLearn gdata host port n
+            LowBound host port n   -> void $ forkIO $ triggerLearn gdata (trying host) port n
+            Send host port msg     -> void $ forkIO $ sendIfPeer gdata (trying host) port msg
 --          Graph host port        -> void $ forkIO createGraph gdata host port
             _                      -> putStrLn "Command not defined yet"
 
@@ -89,6 +90,14 @@ triggerLearn gdata@GlobalData{..} seedHostName seedPort target = loop
       return ()
     else
       loop
+
+sendIfPeer :: GlobalData -> HostName -> PortNumber -> Message  -> IO ()
+sendIfPeer gdata@GlobalData{..} host port msg = do
+  peers <- atomically $ readTVar gpeers
+  let p = Peer host port
+  case M.lookup p peers of
+    Just pi  -> writeToChan gdata pi msg
+    Nothing -> return ()
 
 createGraph :: GlobalData -> HostName -> PortNumber -> IO ()
 createGraph gdata host port =

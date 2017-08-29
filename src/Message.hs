@@ -209,14 +209,3 @@ sendP :: GlobalData -> Message -> PeerInfo -> IO ()
 sendP GlobalData{..} msg PeerInfo{..} = do
     putStrLn $ "[" ++ show myPort ++ "] -> [" ++ show piPort ++ "]: " ++ show msg
     hPrint piHandle msg
-
-
-{-
-sendIfPeer :: GlobalData -> HostName -> PortNumber -> Message  -> IO ()
-sendIfPeer gdata@GlobalData{..} host port msg = do
-  peers <- atomically $ readTVar gpeers
-  let p = Peer host port
-  case M.lookup p peers of
-    Just pi  -> sendP gdata msg (p, piHandle pi)
-    Nothing -> return ()
--}
