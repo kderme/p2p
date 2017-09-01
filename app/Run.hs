@@ -30,7 +30,8 @@ newGlobalData host port delay gpeers gtxs = do
   lockm <- newMVar ()
   appendFile logm $ "Logging for " ++ show host ++ ":" ++ show port ++ "\n"
   del <- newTVarIO delay
-  return $ GlobalData host port lock log lockm logm del gpeers gtxs
+  pong <- newTVarIO True
+  return $ GlobalData host port lock log lockm logm del gpeers gtxs pong
 
 main :: IO ()
 main = do

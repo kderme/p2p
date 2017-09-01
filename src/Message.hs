@@ -74,9 +74,9 @@ processMessage gdata@GlobalData{..} peer@PeerInfo{..} msg = do
     Oldtx newtx _ -> do
         atomically $ processNewTx newtx gtxs
         return ()
-    Ping ->
-        undefined
-        --send gdata Pong piHandle
+    Ping -> do
+        p <- readTVarIO pong
+        when p $ send gdata Pong piHandle
     Pong ->
         atomically $ writeTVar piRespond True
 
@@ -209,14 +209,3 @@ sendP :: GlobalData -> Message -> PeerInfo -> IO ()
 sendP GlobalData{..} msg PeerInfo{..} = do
     putStrLn $ "[" ++ show myPort ++ "] -> [" ++ show piPort ++ "]: " ++ show msg
     hPrint piHandle msg
-
-
-{-
-sendIfPeer :: GlobalData -> HostName -> PortNumber -> Message  -> IO ()
-sendIfPeer gdata@GlobalData{..} host port msg = do
-  peers <- atomically $ readTVar gpeers
-  let p = Peer host port
-  case M.lookup p peers of
-    Just pi  -> sendP gdata msg (p, piHandle pi)
-    Nothing -> return ()
--}

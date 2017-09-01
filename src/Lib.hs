@@ -17,6 +17,7 @@ data GlobalData =
         , delay        :: TVar Int
         , gpeers       :: TVar PeersDict
         , gtxs         :: TVar Transactions
+        , pong       :: TVar Bool
         }
 
 data Peer =

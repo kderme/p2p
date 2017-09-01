@@ -18,10 +18,11 @@ data InterMsg =
     | ShowTxs
     | ShowPeers
     | SetArgs
-    | Send HostName PortNumber Message
     | SetDelay Int
+    | SetPong Bool
     | PingPong
     | LowBound HostName PortNumber Int
+    | Send HostName PortNumber Message
     | Graph HostName PortNumber
     deriving (Show, Read)
 
@@ -38,8 +39,10 @@ interactive gdata@GlobalData{..} seedHostName seedPortName =
             ShowTxs                -> atomically (readTVar gtxs) >>= print
 --          Send host port msg     -> void $ forkIO $ sendIfPeer gdata host port msg
             SetDelay val           -> atomically $ writeTVar delay val
+            SetPong val            -> atomically $ writeTVar pong val
             PingPong               -> void $ forkIO $ triggerPing gdata
-            LowBound host port n   -> void $ forkIO $ triggerLearn gdata host port n
+            LowBound host port n   -> void $ forkIO $ triggerLearn gdata (trying host) port n
+            Send host port msg     -> void $ forkIO $ sendIfPeer gdata (trying host) port msg
 --          Graph host port        -> void $ forkIO createGraph gdata host port
             _                      -> putStrLn "Command not defined yet"
 
@@ -52,25 +55,32 @@ run gdata@GlobalData{..} seedHostName seedPort = do
 
 triggerPing :: GlobalData -> IO ()
 triggerPing gdata@GlobalData{..} = forever $ do
-  threadDelay (120*second)
+  putStrLn "Entering Ping Pong"
+  threadDelay (30*second)
   atomically $ do
     peers <- readTVar gpeers
     mapM_ (\ PeerInfo{..} -> writeTVar piRespond False) $ M.elems peers
   broadcast gdata Ping
-  threadDelay (60*second)
-  atomically $ do
+  threadDelay (30*second)
+  ps <- atomically $ do
     peers <- readTVar gpeers
-    fpeers <- filterM ( readTVar . piRespond . snd) $ M.toList peers
-    let newPeers = foldl (flip M.delete) peers $ map fst fpeers
-    writeTVar gpeers newPeers
+    fpeers <- filterM ( (not <$>) . readTVar . piRespond . snd) $ M.toList peers
+    let (ps,pis) = unzip fpeers
+--    writeTChan piChan msg
+--    let newPeers = foldl (flip M.delete) peers $ map fst fpeers
+    mapM_ (\ PeerInfo{..} -> writeTChan piChan Quit) pis
+    return ps
+  putStrLn $ "Din`t respond: " ++ show ps
+--  writeTVar gpeers newPeers
+  threadDelay (90*second)
 
 triggerLearn :: GlobalData -> HostName -> PortNumber -> Int -> IO ()
 triggerLearn gdata@GlobalData{..} seedHostName seedPort target = loop
     where
   loop :: IO ()
   loop = do
-    threadDelay (150*second)
-    putStrLn "Trigger learn"
+    threadDelay (30*second)
+    putStrLn "Entering Trigger learn"
     n <- atomically $ do
       peers <- readTVar gpeers
       return $ M.size peers
@@ -80,6 +90,14 @@ triggerLearn gdata@GlobalData{..} seedHostName seedPort target = loop
       return ()
     else
       loop
+
+sendIfPeer :: GlobalData -> HostName -> PortNumber -> Message  -> IO ()
+sendIfPeer gdata@GlobalData{..} host port msg = do
+  peers <- atomically $ readTVar gpeers
+  let p = Peer host port
+  case M.lookup p peers of
+    Just pi  -> writeToChan gdata pi msg
+    Nothing -> return ()
 
 createGraph :: GlobalData -> HostName -> PortNumber -> IO ()
 createGraph gdata host port =
