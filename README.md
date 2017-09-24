@@ -1,32 +1,27 @@
 # BitcoinP2P
 
-This project started as an assignment from the IOHK "Haskell and Cryptocurrencies"
+This project started as an assignment from the IOHK "Haskell and Cryptocurrencies" <br />
+summer course held in Athens July-September 2017. <br />
 
-summer course held in Athens July-September 2017.
+We would in particular like to thank our instructors: <br />
 
-We would in particular like to thank our instructors:
+ - Lars Brünjes, from IOHK  https://iohk.io/ <br />
+ - Andres Löh, from Well-Typed The Haskell Consultants http://www.well-typed.com/ 
 
-  Lars Brünjes, from IOHK  https://iohk.io/
+for motivating, helping us and inspiring us with their love and passion about haskell. <br />
 
-  Andres Löh, from Well-Typed The Haskell Consultants http://www.well-typed.com/
+Of course, we are to blame for any mistakes. <br />
+<br />
 
-for motivating, helping us and inspiring us with
+## About
+In this project, we implemented a discovery protocol for Nodes in a p2p  <br />
+network, where Nodes inform one another about their peers. <br />
+In addition, we implemented a protocol where Nodes exchange their information <br />
+so that they are in synchronization. <br />
+<br />
 
-their love and passion about haskell.
-
-Of course, we are to blame for any mistakes.
-
-In this project, we implemented a discovery protocol for Nodes in a p2p 
-
-network, where Nodes inform one another for their peers. 
-
-In addition, we implemented a protocol where Nodes exchange their information 
-
-so that they are in synchronization.
-
-We mainly focus on socket programming, concurrency, client-threads and 
-
-robustness of the system, so that it does not collapse when Nodes leave,
-
-but it can continue to exist and adapt after massive Nodes leaving.
+## Target
+We mainly focus on socket programming, concurrency, client-threads and <br />
+robustness of the system, so that it does not collapse when Nodes leave. <br />
+It can continue to exist and adapt even after many Nodes have left. <br />
 
